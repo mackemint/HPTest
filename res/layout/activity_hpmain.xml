@@ -1,0 +1,404 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".HPMainActivity" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        tools:ignore="UselessParent" >
+
+        <!--
+             Table of buttons 
+			 The buttons are arranged from bottom up
+			 This is to emulate the layout of an MPC 
+			 with the low keys at the bottom
+        -->
+
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:paddingTop="5dp" >
+
+             <!-- This table row is row 4 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r5c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="54" />
+
+                <Button
+                    android:id="@+id/r5c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="55" />
+
+                <Button
+                    android:id="@+id/r5c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:paddingRight="10dp"
+                    android:tag="56" />
+
+                <Button
+                    android:id="@+id/r5c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    
+                    android:tag="57" />
+
+                <Button
+                    android:id="@+id/r5c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="58" />
+
+                <Button
+                    android:id="@+id/r5c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="59" />
+
+                <Button
+                    android:id="@+id/r5c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="60"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+            
+            <!-- This table row is row 4 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r4c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="48" />
+
+                <Button
+                    android:id="@+id/r4c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="49" />
+
+                <Button
+                    android:id="@+id/r4c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:paddingRight="10dp"
+                    android:tag="50" />
+
+                <Button
+                    android:id="@+id/r4c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    
+                    android:tag="51" />
+
+                <Button
+                    android:id="@+id/r4c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="52" />
+
+                <Button
+                    android:id="@+id/r4c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="53" />
+
+                <Button
+                    android:id="@+id/r4c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="61"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+            <!-- This table row is row 3 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r3c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="42" >
+                </Button>
+
+                <Button
+                    android:id="@+id/r3c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="43" >
+                </Button>
+
+                <Button
+                    android:id="@+id/r3c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="44" >
+                </Button>
+                
+			<!-- Might be appropriate with a separator here... -->
+                
+                <Button
+                    android:id="@+id/r3c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="45" >
+                </Button>
+
+                <Button
+                    android:id="@+id/r3c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="46" >
+                </Button>
+
+                <Button
+                    android:id="@+id/r3c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="47" >
+                </Button>
+
+                <Button
+                    android:id="@+id/r3c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="62"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+
+            <!-- This table row is row 2 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r2c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="36" />
+
+                <Button
+                    android:id="@+id/r2c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="37" />
+
+                <Button
+                    android:id="@+id/r2c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="38" />
+
+                <Button
+                    android:id="@+id/r2c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="39" />
+
+                <Button
+                    android:id="@+id/r2c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="40" />
+
+                <Button
+                    android:id="@+id/r2c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="41" />
+
+                <Button
+                    android:id="@+id/r2c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="63h"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+
+            <!-- This table row is row 1 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r1c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="30" />
+
+                <Button
+                    android:id="@+id/r1c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="31" />
+
+                <Button
+                    android:id="@+id/r1c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="32" />
+
+                <Button
+                    android:id="@+id/r1c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="33" />
+
+                <Button
+                    android:id="@+id/r1c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="34" />
+
+                <Button
+                    android:id="@+id/r1c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="35" />
+
+                <Button
+                    android:id="@+id/r1c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="64"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+
+            <!-- This table row is row 0 -->
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/r0c0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="24" />
+
+                <Button
+                    android:id="@+id/r0c1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="25" />
+
+                <Button
+                    android:id="@+id/r0c2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="26" />
+
+
+                <Button
+                    android:id="@+id/r0c3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="27" />
+
+                <Button
+                    android:id="@+id/r0c4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="28" />
+
+                <Button
+                    android:id="@+id/r0c5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:tag="29" />
+
+                <Button
+                    android:id="@+id/r0c6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+
+                    android:tag="65h"
+                    android:text="@string/scene"
+                    android:textSize="30sp" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+</RelativeLayout>
