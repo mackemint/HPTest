@@ -1,7 +1,8 @@
 package se.macke.hptest;
 
+import android.util.Log;
 
-import android.widget.SeekBar;
+
 
 
 /**
@@ -15,12 +16,7 @@ import android.widget.SeekBar;
  */
 public class InputHandler
 {
-	/**
-	 * The source of the input
-	 * TODO Might be changed to something that actually can provide a value, like an Analog Input
-	 */
-	private SeekBar _inputSource;
-	
+
 	/**
 	 * The value received from the IOIO AnalogInput
 	 */
@@ -30,57 +26,48 @@ public class InputHandler
 	 * The destination to be changed
 	 * 
 	 */
-	private Destination _destination;
-	
+	private DestinationProxy _destination;
+
 	/**
 	 * The sources' value.
 	 * Used for determining if the value is close enough for takeover
 	 */
-	private float _lastVal;
+	private int _lastVal;
 
 	/**
 	 * Used when the value is unchanged since the last time.
 	 */
-	private boolean _lastSimilar;
+	private boolean _lastNotSame;
 
 	/**
 	 * Decides if the destination shall be affected by manipulation or not.
 	 */
 	private boolean _takeOver;
 
-	private LowPassFilter _lpf;
-	
-	
+	private final static String DEBUG_TAG = "InputHandler";
+
+      
 	/**
-	 * Creates a new InputHandler that takes source and destination as parameters
+	 * Used when the source talks directly to the InputHandler
 	 * 
-	 * @param source - the source seekBar
-	 * @param destination - the destination SeekBar
+	 * @param destination
 	 */
-	public InputHandler(SeekBar source, Destination destination) 
+	public InputHandler(DestinationProxy destination) 
 	{
-		_inputSource = source;
 		_destination = destination;
+
 	}
 
-	/**
-	 * Used if one wishes to change the input source
-	 * @param input
-	 */
-	public void setInputSource(SeekBar input)
-	{
-		_inputSource = input;
-	}
 	/**
 	 * Used when focus of the destination is changed.
 	 * 
 	 * @param destination - the focus of the handler.
 	 */
-	public void setDestination(Destination destination)
+	public void setDestination(DestinationProxy destination)
 	{
 		_destination = destination;
 	}
-	
+
 	/**
 	 * Used to control separation between GUI and hardware input.
 	 * 
@@ -90,7 +77,7 @@ public class InputHandler
 	{
 		_takeOver = active;
 	}
-	
+
 	/**
 	 * Used when scrolling sideways in the layout
 	 * TBC
@@ -99,85 +86,78 @@ public class InputHandler
 	{
 		_lastVal = _destination.getValue();	
 	}
-	
+
 	/**
 	 * Used for setting the destination value to the value of the input source.
 	 * This happens whenever the fader is in takeover mode.
 	 * 
 	 * To avoid flooding, the destination only gets a new value if it isn't the same as the old one.
 	 * 
-	 * TODO
-	 * Needs to implement a filter function that will determine if the new value is close enough to
-	 * set the destination takeover
+
 	 */
-	public void valueListener()
+	public void setValue(int input)
 	{
-		//TODO might have to filter here instead
-		_inputVal = _inputSource.getProgress();
+		Log.i(DEBUG_TAG,"setValue Method");
+
+
+		_inputVal = input;
 		/**
 		 * Used for Greatest Takes Presidence
 		 */
 		float destinationVal = _destination.getValue();
-		
+
 		//If the fader is in takeover mode, the destination gets the value of the input source
 		//This only happens if the input source has changed since the last time
 		if (_lastVal == _inputVal)
-			_lastSimilar = false;
+			_lastNotSame = false;
 		else 
-			_lastSimilar = true;
-		
-		 if(destinationVal == _inputVal)	
-			 _takeOver = true;
-		
-		 // Sets the destination to True to mark that takeover is happening
-		if(_lastSimilar && _takeOver)
+			_lastNotSame = true;
+
+		Log.i(DEBUG_TAG,"lastVal is: " + _lastVal + " _inputVal is: " + _inputVal);
+
+
+		if(destinationVal == _inputVal)	
+			_takeOver = true;
+
+
+		// Sets the destination to True to mark that takeover is happening
+		if(_lastNotSame && _takeOver)
 		{
 			_lastVal = _inputVal;
 			setDestinationValue(_lastVal);
 		}
-		
-		
-	}
-	
-	/**
-	 * For test purposes
-	 * @return
-	 */
-	public float getSourceValue()
-	{
-		return _inputSource.getProgress();
+
+
 	}
 
-	/**
-	 * For test purposes
-	 * @return
-	 */
-	public float getDestinationValue()
-	{
-		return _destination.getValue();
-	}
 
-	/**
-	 * For test purposes
-	 */
-	public void setSourceValue(int input)
-	{
-		_inputSource.setProgress(input);
-		
-	}
 	/**
 	 * Filters the value before setting it to the Destination
 	 */
-	public void setDestinationValue(float input)
+	public void setDestinationValue(int input)
 	{
-		int integerValue = _lpf.filterInput(input);
-		
-		_destination.setValue(integerValue);
-		
+		Log.i(DEBUG_TAG,"Setting destination value to" + input);
+
+		_destination.setValue(input);
+
 	}
 
-	public Destination getDestination() 
+	public DestinationProxy getDestination() 
 	{
 		return _destination;
+	}
+
+	/**
+	 * Used for setting an initial value to the filter.
+	 * This is to guarantee that the initial value is where the fader is.
+	 * 
+	 * @param previous
+	 */
+	public void setInitial(int previous) 
+	{
+		Log.i(DEBUG_TAG,"Setting initial value to" + previous);
+
+		
+		_lastVal = previous;	
 	}
 }

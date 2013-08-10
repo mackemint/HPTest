@@ -6,127 +6,139 @@ import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 import android.util.Log;
 
+
+/**
+ * This is a runnable class that is used for scanning analog inputs.
+ * It takes input from the IOIO and uses the InputHandler from the main activity
+ * to send to the destination.
+ * 
+ * 
+ * @author macke
+ *
+ */
 public class PotScanner implements Runnable
 {
 
-	
+
 	private static final long PAUSETIME = 30;
 
-	private final String DEBUG_TAG = "AnalogInput";
-	
+	private final String DEBUG_TAG = "PotScanner";
+
 	boolean _running;
-	
+
 	private IOIO _ioio;
-	
-	private HPMainActivity _main;
-	
-	private AnalogInput _analogInput;
-	
-	private float _analogVal;
-	
-	private boolean _active;
-	
-	private float _lastVal;
+
+	private InputHandler[] _inputHandler;
+
+	private LowPassFilter[] _lpf;
 
 	/**
 	 * The input pin carries the property of the instance of this method
 	 */
-	private int ANALOG_INPUT_PIN;
-	
-	public PotScanner(HPMainActivity a, IOIO io, int input) 
+	private final int ANALOG_INPUT_PIN1 = 37;
+	private final int ANALOG_INPUT_PIN2 = 38;
+
+	private final int[] _INPIN = {ANALOG_INPUT_PIN1};
+
+	private AnalogInput[] _analogInput;
+
+	private float[] _analogVal;
+
+
+	/**
+	 * Creates a new scanner with knowledge of the IOIO and the inputhandler form main activity
+	 * 
+	 * @param ioio_
+	 * @param inputHandler
+	 * @throws InterruptedException 
+	 */
+	public PotScanner(IOIO ioio_, InputHandler[] inputHandler) throws InterruptedException 
 	{
+
 		Log.i(DEBUG_TAG, "Constructor");
-		
-		ANALOG_INPUT_PIN = input;
-		
-		_ioio = io;
-		
-		
-		_main = a;
+
+
+
+		_ioio = ioio_;
 
 		_running = true;
+
+
+		_inputHandler = inputHandler;
+
+		_lpf = new LowPassFilter[_INPIN.length];
+
+		_analogVal = new float[_INPIN.length];
 		
-		_analogVal = 0f;
-		
-//		_active = true;
-		
-		
-		
+		_analogInput = new AnalogInput[_INPIN.length];
+
 		try
 		{
-
-			_analogInput = _ioio.openAnalogInput(ANALOG_INPUT_PIN);
+			for (int i = 0; i < _INPIN.length; i++)
+			{
+				_analogInput[i] = _ioio.openAnalogInput(_INPIN[i]);
+				
+				_lpf[i] = new LowPassFilter(_analogInput[i].read());
+				
+				_inputHandler[i].setInitial(_lpf[i].getPrevious());
+			}
 		} 
 		catch (ConnectionLostException e)
 		{
 			_running = false;
 			e.printStackTrace();
 		}
-		Log.i(DEBUG_TAG, "Constructor finished");		
+		Log.i(DEBUG_TAG, "Constructor finished");	
 	}
 
 
 	@Override
 	public void run()
 	{
-		
+
 		Log.i(DEBUG_TAG, "Run method");
 		//always do something
 		while(_running)
 		{
-			
+
 			try
 			{
-				_analogVal = _analogInput.read();
+				for (int i = 0; i < _INPIN.length; i++)
+				{
+
+					Log.i(DEBUG_TAG,"Reading input: " + i);
+					
+					_analogVal[i] = _analogInput[i].read();
+
+					Log.i(DEBUG_TAG, "Finished reading");
+					
+					
+					int smoothVal = _lpf[i].filterInput(_analogVal[i]);
+					
+					Log.i(DEBUG_TAG, "Finished smoothing");
+					
+					_inputHandler[i].setValue(smoothVal);
+
+				}
 				Thread.sleep(PAUSETIME);
-				
-				//Check to see if the value has changed since the last time
-				if(_analogVal != _lastVal)
-					setActive(true);
-				
-				//Highest takes presidence case
-				if(_active)
-					setText(_analogVal);
-				
-				_lastVal = _analogVal;
-				
+
+
 			} catch (InterruptedException e)
 			{
 
 				e.printStackTrace();
-			} catch (ConnectionLostException e)
+			} 
+			catch (ConnectionLostException e)
 			{
-				 _running = false;
-				
+				_running = false;
+
 				Log.i(DEBUG_TAG,"Exited App");
 			}
-			
+
 			//sometimes do something else
-			if(_running)
+			if(!_running)
 			{}
 		}
 	}
-
-
-	private void setText(float floatVal)
-	{
-		
-//		System.out.println("selected real value: " + floatVal);		
-		
-		_main.analogInfluence(floatVal,ANALOG_INPUT_PIN);
-		
-	}
-	
-	private void setActive(boolean a)
-	{
-		_active = a;
-	}
-	
-	public void setTakePresidence(boolean t)
-	{
-		
-	}
-	
-	
 
 }
