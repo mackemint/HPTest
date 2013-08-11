@@ -59,7 +59,7 @@ import android.util.Log;
 		 * Saves the current state as the previous one.
 		 * Used for toggle button feature of H/W buttons
 		 */
-		Boolean[][] prevReading;
+		private boolean[][] prevReading;
 
 		/**
 		 * The colums take in the signal from the outputs
@@ -94,11 +94,12 @@ import android.util.Log;
 
 		private volatile boolean _running;
 
+		/**
+		 * The initial width and height of the button matrix
+		 */
+		private final int DEFAULT_LENGTH = outPin.length;
 
-
-		private final int DEFAULT_LENGTH = 4;
-
-		private final String TAGID = "ButtonScanner";
+		private final String DEBUG_TAG = "ButtonScanner";
 
 		
 		/**
@@ -110,7 +111,7 @@ import android.util.Log;
 		 */
 		public ButtonScanner(IOIO ioio, HPMainActivity activity) throws ConnectionLostException
 		{
-			Log.i(TAGID , "Constructor" );
+			Log.i(DEBUG_TAG , "Constructor" );
 			
 			_main = activity;
 			
@@ -120,7 +121,7 @@ import android.util.Log;
 
 			col_ = new boolean[DEFAULT_LENGTH];
 
-			prevReading = new Boolean[col_.length][row_.length];
+			prevReading = new boolean[col_.length][row_.length];
 
 			digitIn = new DigitalInput[inPin.length];
 
@@ -132,7 +133,7 @@ import android.util.Log;
 			for (int i = 0 ; i < col_.length ; i ++)
 			{
 
-				Log.i(TAGID, "length i is: " + i);
+				Log.i(DEBUG_TAG, "length i is: " + i);
 				/**
 				 * As a workaround for the async bug, only the output is opened here	
 				 */
@@ -144,7 +145,7 @@ import android.util.Log;
 				for (int j = 0; j < prevReading.length; j++)
 					prevReading[i][j] = false;
 			}
-			Log.i(TAGID, "Constructor finished setup" );
+			Log.i(DEBUG_TAG, "Constructor finished setup" );
 			
 			//Increases the priority of the current thread
 			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
@@ -197,30 +198,30 @@ import android.util.Log;
 		 */
 		private void scanButtons() throws ConnectionLostException, InterruptedException
 		{
-			Log.i(TAGID, "initiated");
+			Log.i(DEBUG_TAG, "initiated");
 
 			digitOut[_rowCount].write(true);
 
 			for(int i = 0; i < col_.length; i++)
 			{
-				Log.i(TAGID, "opened col: " + i);
+				Log.i(DEBUG_TAG, "opened col: " + i);
 
 				digitIn[i] = _ioio.openDigitalInput(inPin[i], 
 						DigitalInput.Spec.Mode.PULL_DOWN);
 
-				Log.i(TAGID, "reading col: " + i);
+				Log.i(DEBUG_TAG, "reading col: " + i);
 				Boolean current = digitIn[i].read();
 				Boolean previous = prevReading[_rowCount][i];
 
-				Log.i(TAGID, "current: " + current);
-				Log.i(TAGID, "previous: " + previous);					
+				Log.i(DEBUG_TAG, "current: " + current);
+				Log.i(DEBUG_TAG, "previous: " + previous);					
 
 				/**
 				 * currently high and previously low, toggle button
 				 */
 				if(current && !previous)
 				{
-					Log.i(TAGID, "row: " + _rowCount + " column: " + i);
+					Log.i(DEBUG_TAG, "row: " + _rowCount + " column: " + i);
 					
 					_main.addNoteToQueue(_midiNoteNumber[_rowCount][i], 60);
 

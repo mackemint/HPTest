@@ -1,12 +1,22 @@
 package se.macke.hptest;
 
 import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.DigitalOutput.Spec;
+import ioio.lib.api.DigitalOutput.Spec.Mode;
+import ioio.lib.api.Uart;
+import ioio.lib.api.Uart.Parity;
+import ioio.lib.api.Uart.StopBits;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import javax.sound.midi.MidiMessage;
+import javax.sound.midi.ShortMessage;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -53,11 +63,13 @@ public class HPMainActivity extends IOIOActivity
 	private int _rowCounter;
 
 	/**
-	 * TODO change to MidiMessage
+	 * TODO change to 
 	 * The output queue containing Midi Messages
 	 */
-	private final ArrayBlockingQueue<Integer> out_queue = new ArrayBlockingQueue<Integer>(OUT_QUEUE_SIZE);
-	private final static int OUT_QUEUE_SIZE = 100;
+	private final ArrayBlockingQueue<MidiMessage> out_queue = 
+			new ArrayBlockingQueue<MidiMessage>(OUT_QUEUE_SIZE);
+
+	private final static int OUT_QUEUE_SIZE = 200;
 
 	/**
 	 * Number of columns on the controller
@@ -211,14 +223,18 @@ public class HPMainActivity extends IOIOActivity
 	 */
 	public void addNoteToQueue(int note, int vel)
 	{
-		//           ShortMessage msg = new ShortMessage();
+		ShortMessage msg = new ShortMessage();
 
-		int msg = note;
+		//		int msg = note;
 		Log.i(DEBUG_TAG,"Playing note " + note);
-		try {
-			//                   msg.setMessage(ShortMessage.NOTE_ON, msg, vel);
+		try 
+		{
+			msg.setMessage(ShortMessage.NOTE_ON, note, vel);
 			out_queue.add(msg);
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		
+		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
 		}
 	}
@@ -231,14 +247,19 @@ public class HPMainActivity extends IOIOActivity
 	 */
 	public void addCcToQueue(int cc, int val)
 	{
-		//      ShortMessage msg = new ShortMessage();
+		ShortMessage msg = new ShortMessage();
 
-		int msg = cc;
+		//		int msg = cc;
 		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
-		try {
-			//              msg.setMessage(ShortMessage.NOTE_ON, cc, val);
+		try 
+		{
+			msg.setMessage(ShortMessage.NOTE_ON, cc, val);
 			out_queue.add(msg);
-		} catch (Exception e) {
+		} 
+		
+		catch (Exception e) 
+		
+		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
 		}
 	}
@@ -248,8 +269,22 @@ public class HPMainActivity extends IOIOActivity
 	 */
 	class IOIO extends BaseIOIOLooper 
 	{
+		private static final int BAUD = 31250;
+
+		private static final int MIDI_OUTPUT_PIN = 7;
+
 		/** The on-board LED. */
 		private DigitalOutput led_;
+		
+		/**
+		 * The output for MIDI messages
+		 */
+		private Uart _midiOut;
+		
+		/**
+		 * The stream used for sending the MIDI bytes
+		 */
+		private OutputStream _outputStream;
 
 		/**
 		 * A class for handling fader and knob input
@@ -287,6 +322,8 @@ public class HPMainActivity extends IOIOActivity
 			Log.i(DEBUG_TAG,"setup");
 
 			led_ = ioio_.openDigitalOutput(0, false);
+			
+			
 
 			try 
 			{
@@ -306,6 +343,13 @@ public class HPMainActivity extends IOIOActivity
 			_potThread.start();
 
 			//			_buttonThread.start(); TODO not running right now
+			
+			//Initializing the output
+			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.OPEN_DRAIN), 
+					BAUD,Parity.NONE,StopBits.ONE);
+			
+			_outputStream = _midiOut.getOutputStream();
+	
 
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
@@ -328,7 +372,18 @@ public class HPMainActivity extends IOIOActivity
 					led_.write(!_performancePad[i][i1].isPressed());
 
 			}
-
+			
+			if (!out_queue.isEmpty())
+			{
+				try 
+				{
+					_outputStream.write(out_queue.poll().getMessage());
+				} 
+				catch (IOException e) 
+				{
+					Log.e(DEBUG_TAG,"Problem with MIDI output");
+				}	
+			}
 			try 
 			{
 				Thread.sleep(10);

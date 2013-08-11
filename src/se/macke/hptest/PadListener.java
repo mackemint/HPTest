@@ -10,6 +10,8 @@ import android.view.View.OnTouchListener;
  * 
  * The value of a pad is defined in the XML as a tag.
  * 
+ * It also uses the accelerometer to approximate velocity input and touch events 
+ * for X/Y control as well as aftertouch.
  * @author macke
  *
  */
