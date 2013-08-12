@@ -38,25 +38,25 @@ public class PotScanner implements Runnable
 	private IOIO _ioio;
 
 	/**
-	 * The column pins for the analog input
-	 *	TODO check IO
-	 */
-	private final int COL1_PIN = 37;
-	private final int COL2_PIN = 38;
-	private final int COL3_PIN = 39;
-	private final int COL4_PIN = 40;
-	private final int COL5_PIN = 41;
-	private final int COL6_PIN = 42;
-
-
-	/**
 	 * The row pins for digital output
 	 * 
-	 * TODO check appropriate I/O
 	 */
-	private final int ROW1_PIN = 41;
-	private final int ROW2_PIN = 42;
-	private final int ROW3_PIN = 43;
+	private final int ROW1_PIN = 28;
+	private final int ROW2_PIN = 29;
+	private final int ROW3_PIN = 30;
+			
+	/**
+	 * The column pins for the analog input
+	 *	
+	 */
+	private final int COL1_PIN = 31;
+	private final int COL2_PIN = 32;
+	private final int COL3_PIN = 33;
+	private final int COL4_PIN = 34;
+	private final int COL5_PIN = 35;
+	private final int COL6_PIN = 36;
+
+;
 
 
 
@@ -82,7 +82,7 @@ public class PotScanner implements Runnable
 	 * Array of pins for analog input
 	 */
 
-	private final int[] _inPin = {COL1_PIN};//,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
+	private final int[] _inPin = {COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
 
 
 	/**
@@ -101,6 +101,8 @@ public class PotScanner implements Runnable
 	private float[] _analogVal;
 
 	private int _rowCount = 0;
+
+	private int _smoothVal;
 
 
 	/**
@@ -216,21 +218,21 @@ public class PotScanner implements Runnable
 
 			Log.i(DEBUG_TAG, "Finished reading");
 
+			_smoothVal = _lpf[i].filterInput(_analogVal[i]);
+			
 			/* 
 			 * 	In case the input reads even if it shouldn't for some reason,
 			 *  it only reports to the handler if the value is greater than 0.
+			 *  
 			 */
-			
-			if(_analogVal[i] > 0)
+			if(_smoothVal > 0)
 			{
-				int smoothVal = _lpf[i].filterInput(_analogVal[i]);
-
-				_inputHandler[i].setValue(smoothVal);
+				_inputHandler[i].setValue(_smoothVal);
+				
 				Log.i(DEBUG_TAG, "Finished smoothing");
-
 			}
 			else
-				Log.i(DEBUG_TAG, "Value is too low!");
+				Log.i(DEBUG_TAG, ">>>>>>>>Value is too low for input " + i +"!");
 
 		}
 		Thread.sleep(PAUSETIME);

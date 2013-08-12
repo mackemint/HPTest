@@ -29,19 +29,19 @@ import android.util.Log;
 		/**
 		 * Row pin numbers
 		 */
-		private final int ROW1_PIN = 39;
-		private final int ROW2_PIN = 40;
-		private final int ROW3_PIN = 41;
-		private final int ROW4_PIN = 42;
+		private final int ROW1_PIN = 18;
+		private final int ROW2_PIN = 19;
+		private final int ROW3_PIN = 20;
+		private final int ROW4_PIN = 21;
 
 
 		/**
 		 * Row pin numbers
 		 */
-		private final int COL1_PIN = 43;
-		private final int COL2_PIN = 44;
-		private final int COL3_PIN = 45;
-		private final int COL4_PIN = 46;
+		private final int COL1_PIN = 22;
+		private final int COL2_PIN = 23;
+		private final int COL3_PIN = 24;
+		private final int COL4_PIN = 25;
 
 		/**
 		 * Array of booleans used for storing previous states

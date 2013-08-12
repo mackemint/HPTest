@@ -272,7 +272,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="63h"
+                    android:tag="63"
                     android:text="@string/scene"
                     android:textSize="30sp" />
             </TableRow>
@@ -394,7 +394,7 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
 
-                    android:tag="65h"
+                    android:tag="65"
                     android:text="@string/scene"
                     android:textSize="30sp" />
             </TableRow>

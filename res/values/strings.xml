@@ -4,8 +4,6 @@
     <string name="app_name">HPTest</string>
     <string name="action_settings">Settings</string>
     <string name="init">0</string>
-    <string name="scene"
-        	size="20dp"
-        	>&gt;  </string>
+    <string name="scene">►</string>
 
 </resources>

@@ -1,5 +1,7 @@
 package se.macke.hptest;
 
+import ioio.javax.sound.midi.MidiMessage;
+import ioio.javax.sound.midi.ShortMessage;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutput.Spec;
 import ioio.lib.api.DigitalOutput.Spec.Mode;
@@ -15,8 +17,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.ShortMessage;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -144,7 +144,7 @@ public class HPMainActivity extends IOIOActivity
 		_performancePad[5][5] = (Button) findViewById(R.id.r5c5);
 		_performancePad[5][6] = (Button) findViewById(R.id.r5c6);
 
-		_padListener = new PadListener(HPMainActivity.this);
+		_padListener = new PadListener(HPMainActivity.this, _performancePad);
 
 		/**
 		 * Setting up handlers for faders and onTouchListeners for pads
@@ -329,7 +329,8 @@ public class HPMainActivity extends IOIOActivity
 			{
 				_potScanner = new PotScanner(this.ioio_, _inputHandler);
 			} 
-			catch (InterruptedException e) {
+			catch (InterruptedException e) 
+			{
 
 				e.printStackTrace();
 			}

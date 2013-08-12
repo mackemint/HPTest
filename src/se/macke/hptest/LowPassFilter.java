@@ -33,7 +33,6 @@ public class LowPassFilter
 
 	}
 	
-
 	/**
 	 * This takes a float from 0-1, multiplies it with 126 and returns an integer number
 	 * @param input from the IOIO
