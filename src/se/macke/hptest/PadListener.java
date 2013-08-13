@@ -1,6 +1,7 @@
 package se.macke.hptest;
 
 import android.graphics.LightingColorFilter;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -20,6 +21,8 @@ import android.widget.Button;
 public class PadListener implements OnTouchListener
 {
 	private static final int ACTIVE_COLOR = 0xFF00FF00;
+
+	private static final String DEBUG_TAG = "PadListener";
 
 	private final int INIT_COLOR = 0xFF000000;
 
@@ -59,9 +62,6 @@ public class PadListener implements OnTouchListener
 
 				releaseColumnMembers(thisButton);		
 
-				//Gives the button a nice green tint
-				thisButton.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
-
 				_main.addNoteToQueue(_padNumber, velocity);
 
 				break;
@@ -69,7 +69,6 @@ public class PadListener implements OnTouchListener
 			case MotionEvent.ACTION_UP:
 
 				System.out.println("Released button: " + _padNumber);
-
 
 				_main.addNoteToQueue(_padNumber, 0);
 
@@ -90,40 +89,62 @@ public class PadListener implements OnTouchListener
 	 */
 	private void releaseColumnMembers(Button thisButton) 
 	{
-
 		int col = 0;
+		int row = 0;
 
-		outerLoop: // Steps through rows
-			for (int i = 0 ; i < _button.length; i++)
-			{
-				System.out.println(">row: " + i);
+		//try to read the pads
 
-				for (int j = 0; j <= _button.length; j++)
-				{
-					System.out.println(">>>col: " + j);
-
-					if(_button[i][j] == thisButton)
-					{
-						col = j;//Saving the column number for nulling the others
-
-						System.out.printf(">>>>>>>Pressed at row: %d,  col: %d\n",i,j);
-
-						break outerLoop;
-
-					}
-				}
-			}
-
-		//Resets all buttons in the same column
-		for (int i = 0; i <_button.length; i++)
+			
+		// for all pads do localization
+		while(thisButton != _button[row][col])
 		{
-			if(_button[i][col] != thisButton)
+			System.out.println("<<<<col is:" + col);
+			col++;
+			
+			if(col > _button.length)
 			{
-				_button[i][col].getBackground().setColorFilter(null);
 
+				System.out.println("<<<<row is:" + row);
+					
+				col = 0;
+				row++;
 			}
+		}		
+		
+		
+		
+
+		//If it's a scene launch button
+		if (col == _button.length)
+		{
+			System.out.println("Pressed a scene button!");
+		
+			for (int i = 0 ; i <= _button.length; i++)
+			{
+
+				System.out.println("Scene reset of col " + i);
+			
+				resetColumn(_button[row][i],i);
+			}
+			
 		}
 
+		resetColumn(thisButton, col);
+	
+	}
+
+	private void resetColumn(Button b, int col) 
+	{
+		//Resets all buttons in the same column
+		for (int i = 0; i < _button.length; i++)
+		{
+			if(_button[i][col] != b)
+				_button[i][col].getBackground().setColorFilter(null);
+		}
+
+		//Gives the button a nice green tint
+		b.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
+		Log.i(DEBUG_TAG, "Finished resetting column " + col);
 	}
 
 
