@@ -19,19 +19,16 @@ import android.widget.Button;
  */
 public class PadListener implements OnTouchListener
 {
-	private static final int SCENE_INACTIVE_COLOR = 0xFF000000;
-
-	private static final int INACTIVE_COLOR = 0x00000000;
-
 	private static final int ACTIVE_COLOR = 0xFF00FF00;
 
-	private static final String BUTTON_STRING = "►";
+	private final int INIT_COLOR = 0xFF000000;
 
 	private int _padNumber = 0;
 
 	HPMainActivity _main;
 
 	Button[][] _button;
+
 
 	public PadListener(HPMainActivity main, Button[][] b) 
 	{
@@ -60,23 +57,16 @@ public class PadListener implements OnTouchListener
 
 				System.out.println("Pressed button: " + _padNumber);
 
-				releaseColumnMembers(thisButton);
+				releaseColumnMembers(thisButton);		
 
-				System.out.println("Reset other buttons.");
-
-				thisButton.setTextColor(ACTIVE_COLOR);
-				
-				thisButton.getBackground().setColorFilter(new LightingColorFilter(0xFF7f7f7f, ACTIVE_COLOR));
-				
-
-				System.out.println("Set message and color");
+				//Gives the button a nice green tint
+				thisButton.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
 
 				_main.addNoteToQueue(_padNumber, velocity);
 
 				break;
 
 			case MotionEvent.ACTION_UP:
-
 
 				System.out.println("Released button: " + _padNumber);
 
@@ -103,56 +93,40 @@ public class PadListener implements OnTouchListener
 
 		int col = 0;
 
-		try
-		{
-			outerLoop: // Steps through rows
-				for (int i = 0 ; i < _button.length; i++)
+		outerLoop: // Steps through rows
+			for (int i = 0 ; i < _button.length; i++)
+			{
+				System.out.println(">row: " + i);
+
+				for (int j = 0; j <= _button.length; j++)
 				{
-					System.out.println(">row: " + i);
-					
-					for (int j = 0; j <= _button.length; j++)
+					System.out.println(">>>col: " + j);
+
+					if(_button[i][j] == thisButton)
 					{
-						System.out.println(">>>col: " + j);
+						col = j;//Saving the column number for nulling the others
 
-						if(_button[i][j] == thisButton)
-						{
-							col = j;//Saving the column number for nulling the others
-							
-							System.out.printf(">>>>>>>Pressed at row: %d,  col: %d\n",i,j);
+						System.out.printf(">>>>>>>Pressed at row: %d,  col: %d\n",i,j);
 
-							if (j == _button.length)
-								throw new ArrayIndexOutOfBoundsException();
-							
-//							thisButton.setText(BUTTON_STRING);
-							
-							break outerLoop;
+						break outerLoop;
 
-						}
 					}
 				}
-
-		for (int i = 0; i <_button.length; i++)
-		{
-			_button[i][col].setTextColor(INACTIVE_COLOR);	
-			_button[i][col].getBackground().setColorFilter(new LightingColorFilter(0xFF404040,0xff7f7f7f));
-		}
-
-
-		}
-		
-		//I made this as an exception originally mostly just for fun
-		catch(ArrayIndexOutOfBoundsException aie)
-		{
-			System.out.println("Pressed a scene launch button!");
-			for (int i = 0; i <_button.length; i++)
-			{
-				_button[i][col].setTextColor(SCENE_INACTIVE_COLOR);
-
 			}
 
+		//Resets all buttons in the same column
+		for (int i = 0; i <_button.length; i++)
+		{
+			if(_button[i][col] != thisButton)
+			{
+				_button[i][col].getBackground().setColorFilter(null);
+
+			}
 		}
 
-
 	}
+
+
+
 
 }
