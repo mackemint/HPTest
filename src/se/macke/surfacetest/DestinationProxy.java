@@ -1,6 +1,7 @@
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 import android.util.Log;
+import android.widget.SeekBar;
 
 /**
  * This class is used for adding messages to the output queue.
@@ -14,11 +15,11 @@ import android.util.Log;
 public class DestinationProxy 
 {
 
-	private static final String DEBUG_TAG = "Destination";
+	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + ":Destination";
 
-	private HPMainActivity _main;
+	private STMainActivity _main;
 	
-	private int _cc;
+	private SeekBar _seekBar;
 
 	/**
 	 * The value sent to the output queue
@@ -27,16 +28,17 @@ public class DestinationProxy
 	
 	/**
 	 * Creates a new destination
-	 * @param cc - the CC message
+	 * @param row - the CC message
 	 * @param main main activity
+	 * @param i 
 	 */
-	public DestinationProxy(int cc, HPMainActivity main)
+	public DestinationProxy(SeekBar seekBar, STMainActivity main)
 	{
-		_main = main;
 		
-		_cc = cc;
-
+		_main = main;
 		_destinationValue = 100;
+		
+		_seekBar = seekBar;
 
 		Log.i(DEBUG_TAG,"Setting initial destination value to" + _destinationValue);
 
@@ -51,14 +53,17 @@ public class DestinationProxy
 		Log.i(DEBUG_TAG,"Setting destination value to queue");
 		
 		_destinationValue = value;
-		_main.addCcToQueue(_cc, _destinationValue);
+		_main.addCcToQueue(_seekBar, _destinationValue);
 //		System.out.printf("Destination %d was set to: %d/n",_cc, _destinationValue);
 	}
 
 
+	
 	public int getValue()
 	{
-		System.out.println("Returned destination value of: " + _destinationValue);
+		_destinationValue = _seekBar.getProgress();
+		
+		Log.i(DEBUG_TAG, "Got destination value of: " + _destinationValue);
 		return _destinationValue;
 	}
 

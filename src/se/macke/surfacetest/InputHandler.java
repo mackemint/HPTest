@@ -1,4 +1,4 @@
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 import android.util.Log;
 
@@ -20,7 +20,7 @@ public class InputHandler
 	/**
 	 * The value received from the IOIO AnalogInput
 	 */
-	private int _inputVal;
+//	private int _inputVal;
 
 	/**
 	 * The destination to be changed
@@ -30,12 +30,14 @@ public class InputHandler
 
 	/**
 	 * The sources' value.
-	 * Used for determining if the value is close enough for takeover
+	 * Used for determining if the value is close enough for takeover.
+	 * When the current value is the same as the last one, no message is sent.
 	 */
 	private int _lastVal;
 
 	/**
-	 * Used when the value is unchanged since the last time.
+	 * Used when comparing the value since the last time the InputHandler got a value.
+	 * 
 	 */
 	private boolean _lastNotSame;
 
@@ -44,7 +46,20 @@ public class InputHandler
 	 */
 	private boolean _takeOver;
 
-	private final static String DEBUG_TAG = "InputHandler";
+	/**
+	 * The tolerance between the destination value and the input value
+	 */
+	private final int EPSILON = 2;
+
+	/**
+	 * Saves the last input for comparison with the current input.
+	 * Used when the fader has passed the position of the destinations' value
+	 */
+	private int _lastInput;
+
+	private final static String DEBUG_TAG = STMainActivity.PROJECT_TAG+"InputHandler";
+	
+
 
       
 	/**
@@ -90,44 +105,52 @@ public class InputHandler
 	/**
 	 * Used for setting the destination value to the value of the input source.
 	 * This happens whenever the fader is in takeover mode.
-	 * 
 	 * To avoid flooding, the destination only gets a new value if it isn't the same as the old one.
 	 * 
-
+	 * Takes a filtered value and sends it to the destination if conditions are met
+	 * 
+	 * @param input - the value that is input from user
 	 */
 	public void setValue(int input)
 	{
 		Log.i(DEBUG_TAG,"setValue Method");
 
 
-		_inputVal = input;
+//		input = input;
 		/**
 		 * Used for Greatest Takes Presidence
 		 */
-		float destinationVal = _destination.getValue();
+		int destinationVal = _destination.getValue();
+		
 
 		//If the fader is in takeover mode, the destination gets the value of the input source
 		//This only happens if the input source has changed since the last time
-		if (_lastVal == _inputVal)
+		if (_lastVal == input)
 			_lastNotSame = false;
 		else 
 			_lastNotSame = true;
 
-		Log.i(DEBUG_TAG,"lastVal is: " + _lastVal + " _inputVal is: " + _inputVal);
+		Log.i(DEBUG_TAG,"lastVal is: " + _lastVal + " _inputVal is: " + input + " destinationVal: " + destinationVal + " Takeover is " + _takeOver + ", last: " + _lastNotSame);
 
-
-		if(destinationVal == _inputVal)	
+		// If the difference between the destination value and the input value is small enough, takeover is set to True
+		if(Math.abs(destinationVal - input) < EPSILON)
+				_takeOver = true;
+		
+		// If the fader value has passed the value of the destination, takeover is set to true!
+		if(_lastInput > destinationVal && destinationVal >= input)
+			_takeOver = true;
+		if(_lastInput < destinationVal && destinationVal <= input)
 			_takeOver = true;
 
-
+		
 		// Sets the destination to True to mark that takeover is happening
 		if(_lastNotSame && _takeOver)
 		{
-			_lastVal = _inputVal;
+			_lastVal = input;
 			setDestinationValue(_lastVal);
 		}
 
-
+		_lastInput = input;
 	}
 
 

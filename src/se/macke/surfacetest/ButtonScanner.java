@@ -1,4 +1,4 @@
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
@@ -19,7 +19,7 @@ import android.util.Log;
 		/**
 		 * An instance of the Main Activity to handle button presses
 		 */
-		private HPMainActivity _main;
+		private STMainActivity _main;
 
 		/**
 		 * What row is currently HIGH
@@ -109,7 +109,7 @@ import android.util.Log;
 		 * @param activity
 		 * @throws ConnectionLostException
 		 */
-		public ButtonScanner(IOIO ioio, HPMainActivity activity) throws ConnectionLostException
+		public ButtonScanner(IOIO ioio, STMainActivity activity) throws ConnectionLostException
 		{
 			Log.i(DEBUG_TAG , "Constructor" );
 			
@@ -223,7 +223,7 @@ import android.util.Log;
 				{
 					Log.i(DEBUG_TAG, "row: " + _rowCount + " column: " + i);
 					
-					_main.addNoteToQueue(_midiNoteNumber[_rowCount][i], 60);
+					_main.addNoteToQueue(_rowCount,i);
 
 				}		
 				

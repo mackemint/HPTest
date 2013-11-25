@@ -1,4 +1,4 @@
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 import android.graphics.LightingColorFilter;
 import android.util.Log;
@@ -28,12 +28,12 @@ public class PadListener implements OnTouchListener
 
 	private int _padNumber = 0;
 
-	HPMainActivity _main;
+	STMainActivity _main;
 
 	Button[][] _button;
 
 
-	public PadListener(HPMainActivity main, Button[][] b) 
+	public PadListener(STMainActivity main, Button[][] b) 
 	{
 		_main = main;
 

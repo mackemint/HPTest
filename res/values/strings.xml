@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">HPTest</string>
+    <string name="app_name">PotMatrixTest</string>
     <string name="action_settings">Settings</string>
     <string name="init">0</string>
     <string name="scene">►</string>

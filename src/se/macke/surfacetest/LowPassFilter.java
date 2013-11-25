@@ -1,4 +1,4 @@
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 import android.util.Log;
 
@@ -14,7 +14,7 @@ public class LowPassFilter
 	
 	private static final int _MAX_RES = 126;
 
-	private static final String DEBUG_TAG = "LowPassFilter";
+	private static final String DEBUG_TAG = STMainActivity.PROJECT_TAG + "LowPassFilter";
 	
 	int _previousVal;
 
