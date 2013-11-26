@@ -15,33 +15,51 @@ import android.widget.SeekBar;
 public class DestinationProxy 
 {
 
+	/**
+	 * Concatenating debug message
+	 */
 	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + ":Destination";
 
 	private STMainActivity _main;
 	
-	private SeekBar _seekBar;
+	private int _cc;
 
 	/**
 	 * The value sent to the output queue
 	 */
 	private int _destinationValue;
+
+	/**
+	 * The CC# transmitted
+	 */
+	private int _ccNumber;
+
+	/**
+	 * The value in 7 bit sent to the output queue
+	 */
+	private int _ccValue;
 	
+
+		
+
 	/**
 	 * Creates a new destination
-	 * @param row - the CC message
+	 * 
+	 * @param cc - the CC message
 	 * @param main main activity
-	 * @param i 
 	 */
-	public DestinationProxy(SeekBar seekBar, STMainActivity main)
+	public DestinationProxy(int cc, STMainActivity main) 
 	{
-		
+
 		_main = main;
-		_destinationValue = 100;
 		
-		_seekBar = seekBar;
+		_destinationValue = 100;
+			
+		_ccNumber = cc;
 
-		Log.i(DEBUG_TAG,"Setting initial destination value to" + _destinationValue);
+		_ccValue = 100;
 
+		Log.i(DEBUG_TAG,"Setting initial destination value to" + _ccValue);
 	}
 
 	/**
@@ -52,19 +70,16 @@ public class DestinationProxy
 	{
 		Log.i(DEBUG_TAG,"Setting destination value to queue");
 		
-		_destinationValue = value;
-		_main.addCcToQueue(_seekBar, _destinationValue);
+		_ccValue = value;
+		_main.addCcToQueue(_ccNumber, _ccValue);
 //		System.out.printf("Destination %d was set to: %d/n",_cc, _destinationValue);
 	}
 
 
-	
 	public int getValue()
 	{
-		_destinationValue = _seekBar.getProgress();
-		
-		Log.i(DEBUG_TAG, "Got destination value of: " + _destinationValue);
-		return _destinationValue;
+		System.out.println("Returned destination value of: " + _ccValue);
+		return _ccValue;
 	}
 
 

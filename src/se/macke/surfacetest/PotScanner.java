@@ -97,9 +97,9 @@ public class PotScanner implements Runnable
 	
 	private final int[] ssPins = {8};
 	
-	private final byte[] _request = { 0x7f};
+	private final byte[] _request = {0x7f};
 
-	private final byte[] _response = { 0x7f};
+	private final byte[] _response = {0x7f};
 
 	/**
 	 * Array of pins for analog input

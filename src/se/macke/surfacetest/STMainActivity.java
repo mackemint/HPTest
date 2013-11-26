@@ -17,20 +17,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import se.macke.hptest.R;
-
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 
 public class STMainActivity extends IOIOActivity 
 {
 
+	
 
 	/**
 	 * A proxy class for MIDI I/O
@@ -47,12 +42,6 @@ public class STMainActivity extends IOIOActivity
 	 * the corresponding button that is pressed.
 	 */
 	private PadListener _padListener;
-	
-	/**
-	 * A textview for viewing the last value recorded
-	 */
-	public TextView _textView;
-	
 
 
 	/**
@@ -60,7 +49,7 @@ public class STMainActivity extends IOIOActivity
 	 * There are 6 columns of these and 7 rows
 	 * Column number 7 consists of scene launch buttons
 	 */
-//	private Button[][] _performancePad;
+	private Button[][] _performancePad;
 
 
 	/**
@@ -74,7 +63,6 @@ public class STMainActivity extends IOIOActivity
 	private int _rowCounter;
 
 	/**
-	 * TODO change to 
 	 * The output queue containing Midi Messages
 	 */
 	private final ArrayBlockingQueue<MidiMessage> out_queue = 
@@ -85,111 +73,111 @@ public class STMainActivity extends IOIOActivity
 	/**
 	 * Number of columns on the controller
 	 */
-	private final int COLUMNS = 6;
+	private final int BUTTON_COLUMNS = 6;
 
-	private final int ROWS = 3;
+	private final int BUTTON_ROWS = 7;
+	
 	/**
 	 * Start CC of column 1
 	 */
-	private final int FADER_DEFAULT_CC = 60;
-	
-	private SeekBar[][] _fader;
-
+	private final int INIT_CC = 60;
 
 	private final static String DEBUG_TAG = "main";
-	final static String PROJECT_TAG = "SurfaceTest";
+    final static String PROJECT_TAG = "SurfaceTest";
+     
+	private static final int FADER_ROWS = 3;
+	
+	private static final int FADER_COLUMNS = 6;
 
 	private void setupFaders()
 	{
 		_columnCounter = 0;
 
-		_destinationProxy = new DestinationProxy[ROWS][COLUMNS];
+		_destinationProxy = new DestinationProxy[FADER_ROWS][FADER_COLUMNS];
 
-		_inputHandler = new InputHandler[ROWS][COLUMNS];
+		_inputHandler = new InputHandler[FADER_ROWS][FADER_COLUMNS];
 
-//		_performancePad = new Button[COLUMNS][ROWS];
-
-		_fader = new SeekBar[ROWS][COLUMNS];
+		_performancePad = new Button[BUTTON_COLUMNS][BUTTON_ROWS];
 
 		// Setting up on screen buttons
 
-		_fader[0][0] = (SeekBar) findViewById(R.id.r0c0);
-		_fader[0][1] = (SeekBar) findViewById(R.id.r0c1);
-		_fader[0][2] = (SeekBar) findViewById(R.id.r0c2);
-		_fader[0][3] = (SeekBar) findViewById(R.id.r0c3);
-		_fader[0][4] = (SeekBar) findViewById(R.id.r0c4);
-		_fader[0][5] = (SeekBar) findViewById(R.id.r0c5);
+		_performancePad[0][0] = (Button) findViewById(R.id.r0c0);
+		_performancePad[0][1] = (Button) findViewById(R.id.r0c1);
+		_performancePad[0][2] = (Button) findViewById(R.id.r0c2);
+		_performancePad[0][3] = (Button) findViewById(R.id.r0c3);
+		_performancePad[0][4] = (Button) findViewById(R.id.r0c4);
+		_performancePad[0][5] = (Button) findViewById(R.id.r0c5);
+		_performancePad[0][6] = (Button) findViewById(R.id.r0c6);
 
-		
-		_fader[1][0] = (SeekBar) findViewById(R.id.r1c0);
-		_fader[1][1] = (SeekBar) findViewById(R.id.r1c1);
-		_fader[1][2] = (SeekBar) findViewById(R.id.r1c2);
-		_fader[1][3] = (SeekBar) findViewById(R.id.r1c3);
-		_fader[1][4] = (SeekBar) findViewById(R.id.r1c4);
-		_fader[1][5] = (SeekBar) findViewById(R.id.r1c5);
+		_performancePad[1][0] = (Button) findViewById(R.id.r1c0);
+		_performancePad[1][1] = (Button) findViewById(R.id.r1c1);
+		_performancePad[1][2] = (Button) findViewById(R.id.r1c2);
+		_performancePad[1][3] = (Button) findViewById(R.id.r1c3);
+		_performancePad[1][4] = (Button) findViewById(R.id.r1c4);
+		_performancePad[1][5] = (Button) findViewById(R.id.r1c5);
+		_performancePad[1][6] = (Button) findViewById(R.id.r1c6);
 
-		_fader[2][0] = (SeekBar) findViewById(R.id.r2c0);
-		_fader[2][1] = (SeekBar) findViewById(R.id.r2c1);
-		_fader[2][2] = (SeekBar) findViewById(R.id.r2c2);
-		_fader[2][3] = (SeekBar) findViewById(R.id.r2c3);
-		_fader[2][4] = (SeekBar) findViewById(R.id.r2c4);
-		_fader[2][5] = (SeekBar) findViewById(R.id.r2c5);
-		
+		_performancePad[2][0] = (Button) findViewById(R.id.r2c0);
+		_performancePad[2][1] = (Button) findViewById(R.id.r2c1);
+		_performancePad[2][2] = (Button) findViewById(R.id.r2c2);
+		_performancePad[2][3] = (Button) findViewById(R.id.r2c3);
+		_performancePad[2][4] = (Button) findViewById(R.id.r2c4);
+		_performancePad[2][5] = (Button) findViewById(R.id.r2c5);
+		_performancePad[2][6] = (Button) findViewById(R.id.r2c6);
 
-		_textView = (TextView) findViewById(R.id.textView);
-		
-		_textView.setText("1");
-		
-		
+		_performancePad[3][0] = (Button) findViewById(R.id.r3c0);
+		_performancePad[3][1] = (Button) findViewById(R.id.r3c1);
+		_performancePad[3][2] = (Button) findViewById(R.id.r3c2);
+		_performancePad[3][3] = (Button) findViewById(R.id.r3c3);
+		_performancePad[3][4] = (Button) findViewById(R.id.r3c4);
+		_performancePad[3][5] = (Button) findViewById(R.id.r3c5);
+		_performancePad[3][6] = (Button) findViewById(R.id.r3c6);
 
+		_performancePad[4][0] = (Button) findViewById(R.id.r4c0);
+		_performancePad[4][1] = (Button) findViewById(R.id.r4c1);
+		_performancePad[4][2] = (Button) findViewById(R.id.r4c2);
+		_performancePad[4][3] = (Button) findViewById(R.id.r4c3);
+		_performancePad[4][4] = (Button) findViewById(R.id.r4c4);
+		_performancePad[4][5] = (Button) findViewById(R.id.r4c5);
+		_performancePad[4][6] = (Button) findViewById(R.id.r4c6);
 
-//		_padListener = new PadListener(STMainActivity.this, _performancePad);
+		_performancePad[5][0] = (Button) findViewById(R.id.r5c0);
+		_performancePad[5][1] = (Button) findViewById(R.id.r5c1);
+		_performancePad[5][2] = (Button) findViewById(R.id.r5c2);
+		_performancePad[5][3] = (Button) findViewById(R.id.r5c3);
+		_performancePad[5][4] = (Button) findViewById(R.id.r5c4);
+		_performancePad[5][5] = (Button) findViewById(R.id.r5c5);
+		_performancePad[5][6] = (Button) findViewById(R.id.r5c6);
+
+		_padListener = new PadListener(STMainActivity.this, _performancePad);
 
 		/**
-		 * Setting up handlers for faders and onTouchListeners for pads
+		 * Setting up TouchListeners for pads
 		 */
-		for (int i = 0; i < ROWS; i++)
+		for (int i = 0; i < BUTTON_COLUMNS; i++)
 		{
-
-			for (int j = 0; j < COLUMNS; j++)
+			for (int j = 0; j < BUTTON_ROWS; j++)
 			{
-				_destinationProxy[i][j] = new DestinationProxy(_fader[i][j], STMainActivity.this);
-//				_performancePad[i][j].setOnTouchListener(_padListener);
-				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
-				
-				
-
-				_fader[i][j].setMax(127);
-				_fader[i][j].setProgress(50);
-				
-				_fader[i][j].setOnSeekBarChangeListener(new OnSeekBarChangeListener()
-				{
-					
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onProgressChanged(SeekBar seekBar, int progress,
-							boolean fromUser) {
-						String strProg = "" + progress;
-						Log.i("PROGRESS: ", strProg);
-						_textView.setText(strProg);
-						
-					}
-				});
-
+				_performancePad[i][j].setOnTouchListener(_padListener);
 			}
 		}
-
+		
+		// Setting up Proxys and Handlers for fader input
+		for (int i = 0; i < FADER_ROWS; i++)
+		{
+			//Counter for cc values, increases for every position
+			int ccCounter = 0;
+			
+			for (int j = 0; j < FADER_COLUMNS; j++)
+			{
+			_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, STMainActivity.this);
+			
+			_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
+			
+			ccCounter++;
+			}
+			
+		}
 	}
 
 	@Override
@@ -243,24 +231,27 @@ public class STMainActivity extends IOIOActivity
 	}
 
 	/**
-
-	 * Pushes the on screen button
+	 * Adds a MIDI note to the output queue
+	 * 
 	 * @param note
 	 * @param vel
-	 * @param i 
 	 */
-	public void addNoteToQueue(final int j,  final int i)
+	public void addNoteToQueue(int note, int vel)
 	{
-		runOnUiThread(new Runnable()
+		ShortMessage msg = new ShortMessage();
+
+		//		int msg = note;
+		Log.i(DEBUG_TAG,"Playing note " + note);
+		try 
 		{
-
-			@Override
-			public void run()
-			{
-//				_performancePad[j][i].performClick();
-
-			}
-		});
+			msg.setMessage(ShortMessage.NOTE_ON, note, vel);
+			out_queue.add(msg);
+		} 
+		catch (Exception e) 
+		
+		{
+			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
+		}
 	}
 
 	/**
@@ -269,175 +260,166 @@ public class STMainActivity extends IOIOActivity
 	 * @param cc
 	 * @param val
 	 */
-	public void addCcToQueue(final SeekBar fader, final int val)
+	public void addCcToQueue(int cc, int val)
 	{
+		ShortMessage msg = new ShortMessage();
 
-
-		Log.i(DEBUG_TAG,"Fader value set to " + val);
-
-		runOnUiThread(new Runnable()
+		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
+		try 
 		{
+			msg.setMessage(ShortMessage.CONTROL_CHANGE, cc, val);
+			out_queue.add(msg);
+		} 
+		
+		catch (Exception e) 
+		
+		{
+			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
+		}
+	}
 
-			@Override
-			public void run()
+	/**
+	 * This is the thread on which all the IOIO activity happens. 
+	 */
+	class IOIO extends BaseIOIOLooper 
+	{
+		private static final int BAUD = 31250;
+
+		private static final int MIDI_OUTPUT_PIN = 7;
+
+		/** The on-board LED. */
+		private DigitalOutput led_;
+		
+		/**
+		 * The output for MIDI messages
+		 */
+		private Uart _midiOut;
+		
+		/**
+		 * The stream used for sending the MIDI bytes
+		 */
+		private OutputStream _outputStream;
+
+		/**
+		 * A class for handling fader and knob input
+		 */
+		private PotScanner _potScanner;
+		/**
+		 * A class for handling keyboard input
+		 */
+		private ButtonScanner _buttonScanner;
+
+		/**
+		 * Thread for scanning the potentiometers
+		 */
+		Thread _potThread;
+
+		/**
+		 * Thread for scanning the button matrix
+		 */
+		Thread _buttonThread;
+
+
+
+		/**
+		 * Called every time a connection with IOIO has been established.
+		 * Typically used to open pins.
+		 * 
+		 * @throws ConnectionLostException
+		 *             When IOIO connection is lost.
+		 * 
+		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#setup()
+		 */
+		@Override
+		protected void setup() throws ConnectionLostException 
+		{
+			Log.i(DEBUG_TAG,"setup");
+
+			led_ = ioio_.openDigitalOutput(0, false);
+			
+			try 
 			{
-				fader.setProgress(val);
-//				_textView.setText(val);
-				
+				_potScanner = new PotScanner(this.ioio_, _inputHandler);
+			} 
+			catch (InterruptedException e) 
+			{
+
+				e.printStackTrace();
+			}
+
+			_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this);
+
+			_potThread = new Thread(_potScanner);
+
+			_buttonThread = new Thread(_buttonScanner);
+
+			_potThread.start();
+
+			//			_buttonThread.start(); TODO not running right now
+			
+			//Initializing the output
+			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.OPEN_DRAIN), 
+					BAUD,Parity.NONE,StopBits.ONE);
+			
+			_outputStream = _midiOut.getOutputStream();
+	
+
+			Log.i(DEBUG_TAG,"setup finished");
+		} 
+
+		/**
+		 * Called repetitively while the IOIO is connected.
+		 * 
+		 * @throws ConnectionLostException
+		 *             When IOIO connection is lost.
+		 * 
+		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#loop()
+		 */
+		@Override
+		public void loop() throws ConnectionLostException 
+		{
+			for (int i = 0; i < _performancePad.length; i++)
+			{
+				for (int j = 0; j < _performancePad.length; j++)
+
+					led_.write(!_performancePad[i][j].isPressed());
 
 			}
 			
-
-
-		});
-	}
-
-		/**
-		 * This is the thread on which all the IOIO activity happens. 
-		 */
-		class IOIO extends BaseIOIOLooper 
-		{
-			private static final int BAUD = 31250;
-
-			private static final int MIDI_OUTPUT_PIN = 7;
-
-			/** The on-board LED. */
-			private DigitalOutput led_;
-
-			/**
-			 * The output for MIDI messages
-			 */
-			private Uart _midiOut;
-
-			/**
-			 * The stream used for sending the MIDI bytes
-			 */
-			private OutputStream _outputStream;
-
-			/**
-			 * A class for handling fader and knob input
-			 */
-			private PotScanner _potScanner;
-			/**
-			 * A class for handling keyboard input
-			 */
-			private ButtonScanner _buttonScanner;
-
-			/**
-			 * Thread for scanning the potentiometers
-			 */
-			Thread _potThread;
-
-			/**
-			 * Thread for scanning the button matrix
-			 */
-			Thread _buttonThread;
-
-
-
-			/**
-			 * Called every time a connection with IOIO has been established.
-			 * Typically used to open pins.
-			 * 
-			 * @throws ConnectionLostException
-			 *             When IOIO connection is lost.
-			 * 
-			 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#setup()
-			 */
-			@Override
-			protected void setup() throws ConnectionLostException 
+			if (!out_queue.isEmpty())
 			{
-				Log.i(DEBUG_TAG,"setup");
-
-				led_ = ioio_.openDigitalOutput(0, false);
-
-
-
 				try 
 				{
-					_potScanner = new PotScanner(this.ioio_, _inputHandler);
+					_outputStream.write(out_queue.poll().getMessage());
 				} 
-				catch (InterruptedException e) 
+				catch (IOException e) 
 				{
-
-					e.printStackTrace();
-				}
-
-				_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this);
-
-				_potThread = new Thread(_potScanner);
-
-				_buttonThread = new Thread(_buttonScanner);
-
-				_potThread.start();
-
-				//			_buttonThread.start(); TODO not running right now
-
-				//Initializing the output
-				_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.OPEN_DRAIN), 
-						BAUD,Parity.NONE,StopBits.ONE);
-
-				_outputStream = _midiOut.getOutputStream();
-
-
-				Log.i(DEBUG_TAG,"setup finished");
+					Log.e(DEBUG_TAG,"Problem with MIDI output");
+				}	
+			}
+			try 
+			{
+				Thread.sleep(10);
 			} 
-
-			/**
-			 * Called repetitively while the IOIO is connected.
-			 * 
-			 * @throws ConnectionLostException
-			 *             When IOIO connection is lost.
-			 * 
-			 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#loop()
-			 */
-			@Override
-			public void loop() throws ConnectionLostException 
-			{
-//				for (int i = 0; i < _performancePad.length; i++)
-//				{
-//					for (int i1 = 0; i1 < _performancePad.length; i1++)
-//
-//						led_.write(!_performancePad[i][i1].isPressed());
-//
-//				}
-
-				if (!out_queue.isEmpty())
-				{
-					try 
-					{
-						_outputStream.write(out_queue.poll().getMessage());
-					} 
-					catch (IOException e) 
-					{
-						Log.e(DEBUG_TAG,"Problem with MIDI output");
-					}	
-				}
-				try 
-				{
-					Thread.sleep(10);
-				} 
-				catch (InterruptedException e) {
-				}
+			catch (InterruptedException e) {
 			}
 		}
-
-		/**
-		 * A method to create our IOIO thread.
-		 * 
-		 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
-		 */
-		@Override
-		protected IOIOLooper createIOIOLooper() 
-		{
-			return new IOIO();
-		}
-
-
-
-
-
-
-
-
 	}
+
+	/**
+	 * A method to create our IOIO thread.
+	 * 
+	 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
+	 */
+	@Override
+	protected IOIOLooper createIOIOLooper() 
+	{
+		return new IOIO();
+	}
+
+
+
+
+
+
+}
