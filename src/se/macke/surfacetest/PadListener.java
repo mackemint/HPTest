@@ -13,7 +13,7 @@ import android.widget.Button;
  * 
  * The value of a pad is defined in the XML as a tag.
  * 
- * It also uses the accelerometer to approximate velocity input and touch events 
+ * It uses the accelerometer to approximate velocity input and touch events 
  * for X/Y control as well as aftertouch.
  * @author macke
  *
@@ -26,6 +26,9 @@ public class PadListener implements OnTouchListener
 
 	private final int INIT_COLOR = 0xFF000000;
 
+	/**
+	 * Pad numbers are contained as tags in the layout
+	 */
 	private int _padNumber = 0;
 
 	STMainActivity _main;
@@ -33,6 +36,14 @@ public class PadListener implements OnTouchListener
 	Button[][] _button;
 
 
+	/**
+	 * Sets up a new PadListener
+	 * Has knowledge of all the buttons on the screen as well
+	 * as the main activity where the MIDI is output.
+	 * 
+	 * @param main
+	 * @param b
+	 */
 	public PadListener(STMainActivity main, Button[][] b) 
 	{
 		_main = main;
@@ -56,9 +67,10 @@ public class PadListener implements OnTouchListener
 		{
 			switch(event.getAction())
 			{
+			//Firstly only simple button presses and releases
 			case MotionEvent.ACTION_DOWN:
 
-				System.out.println("Pressed button: " + _padNumber);
+//				System.out.println("Pressed button: " + _padNumber);
 
 				releaseColumnMembers(thisButton);		
 
@@ -68,10 +80,16 @@ public class PadListener implements OnTouchListener
 
 			case MotionEvent.ACTION_UP:
 
-				System.out.println("Released button: " + _padNumber);
+//				System.out.println("Released button: " + _padNumber);
 
 				_main.addNoteToQueue(_padNumber, 0);
 
+				break;
+				
+			//More sophisticated actions
+			case MotionEvent.ACTION_MOVE:
+				
+					//TODO implement motion events from piano project
 				break;
 			}
 		}

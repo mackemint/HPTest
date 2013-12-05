@@ -15,6 +15,7 @@ import android.util.Log;
  */
 	public class ButtonScanner implements Runnable
 	{
+		
 		private IOIO _ioio;
 		/**
 		 * An instance of the Main Activity to handle button presses
@@ -35,6 +36,8 @@ import android.util.Log;
 		private final int ROW4_PIN = 21;
 
 
+		
+		
 		/**
 		 * Row pin numbers
 		 */
@@ -99,7 +102,9 @@ import android.util.Log;
 		 */
 		private final int DEFAULT_LENGTH = outPin.length;
 
-		private final String DEBUG_TAG = "ButtonScanner";
+		private String DEBUG_TAG = STMainActivity.PROJECT_TAG + "ButtonScanner";
+		
+		private DigitalOutput led_;
 
 		
 		/**
@@ -107,9 +112,10 @@ import android.util.Log;
 		 * 
 		 * @param ioio
 		 * @param activity
+		 * @param led 
 		 * @throws ConnectionLostException
 		 */
-		public ButtonScanner(IOIO ioio, STMainActivity activity) throws ConnectionLostException
+		public ButtonScanner(IOIO ioio, STMainActivity activity, DigitalOutput led) throws ConnectionLostException
 		{
 			Log.i(DEBUG_TAG , "Constructor" );
 			
@@ -128,6 +134,10 @@ import android.util.Log;
 			digitOut = new DigitalOutput[outPin.length];
 			
 			_running = true;
+			
+			
+			led_ = led;
+
 
 
 			for (int i = 0 ; i < col_.length ; i ++)
@@ -210,26 +220,15 @@ import android.util.Log;
 						DigitalInput.Spec.Mode.PULL_DOWN);
 
 				Log.i(DEBUG_TAG, "reading col: " + i);
+
 				Boolean current = digitIn[i].read();
 				Boolean previous = prevReading[_rowCount][i];
 
-				Log.i(DEBUG_TAG, "current: " + current);
-				Log.i(DEBUG_TAG, "previous: " + previous);					
-
-				/**
-				 * currently high and previously low, toggle button
-				 */
-				if(current && !previous)
-				{
-					Log.i(DEBUG_TAG, "row: " + _rowCount + " column: " + i);
-					
-					_main.addNoteToQueue(_rowCount,i);
-
-				}		
+				addToQueue(i, current, previous);
 				
-				//For togglebutton-behaviour
 				prevReading[_rowCount][i] = current;
-
+					
+			
 				/**
 				 * This input is now closed to force syncing between I/O
 				 */
@@ -246,8 +245,48 @@ import android.util.Log;
 		}
 
 
+
+		/**
+		 * Checks for interconnection of buttons and adds messages to the output queue in main
+		 * 
+		 * @param i - index
+		 * @param current - the current reading
+		 * @param previous - previous reading
+		 *  
+		 * @throws ConnectionLostException
+		 */
+		private void addToQueue(int i, Boolean current, Boolean previous)
+				throws ConnectionLostException {
+			
+			//* Note On
+			Log.i(DEBUG_TAG, "row: " + _rowCount + " column: " + i);
+
+			Log.i(DEBUG_TAG, "current: " + current);
+			Log.i(DEBUG_TAG, "previous: " + previous);					
+
+			if(current && !previous)
+			{
+				
+				_main.addNoteToQueue(_midiNoteNumber[_rowCount][i],127);
+				
+				led_.write(!current);
+
+			}
+			//* Note Off
+			else if (!current && previous)
+			{
+				
+				_main.addNoteToQueue(_midiNoteNumber[_rowCount][i],0);
+				
+				led_.write(current);
+				
+			}
+		}
+
+
 		/**
 		 * Counts the rows
+		 * Wraps around when reaching row length
 		 */
 		private void countRows()
 		{

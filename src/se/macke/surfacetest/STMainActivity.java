@@ -241,7 +241,10 @@ public class STMainActivity extends IOIOActivity
 		ShortMessage msg = new ShortMessage();
 
 		//		int msg = note;
-		Log.i(DEBUG_TAG,"Playing note " + note);
+		if (vel>0)
+			Log.i(DEBUG_TAG,"Note " + note + " on with velocity:" + vel);
+		else
+			Log.i(DEBUG_TAG,"Note " + note + " off");
 		try 
 		{
 			msg.setMessage(ShortMessage.NOTE_ON, note, vel);
@@ -347,15 +350,15 @@ public class STMainActivity extends IOIOActivity
 				e.printStackTrace();
 			}
 
-			_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this);
+			_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this, led_);
 
 			_potThread = new Thread(_potScanner);
 
 			_buttonThread = new Thread(_buttonScanner);
 
-			_potThread.start();
+//			_potThread.start();
 
-			//			_buttonThread.start(); TODO not running right now
+			_buttonThread.start();
 			
 			//Initializing the output
 			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.OPEN_DRAIN), 

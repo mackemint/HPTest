@@ -42,6 +42,27 @@ public class PotScanner implements Runnable
 	 */
 	private IOIO _ioio;
 
+//	/**
+//	 * The row pins for digital output
+//	 * 
+//	 */
+//	private final int ROW1_PIN = 28;
+//	private final int ROW2_PIN = 29;
+//	private final int ROW3_PIN = 30;
+//
+//	
+//	/**
+//	 * The column pins for the analog input
+//	 *	
+//	 */
+//	private final int COL1_PIN = 31; 	//Grå
+//	private final int COL2_PIN = 44;	//Blå
+//	private final int COL3_PIN = 32;	//orange
+//	private final int COL4_PIN = 34;	//Gul
+//	private final int COL5_PIN = 46;	//Vit
+//	private final int COL6_PIN = 33;	//Grön
+//
+
 	/**
 	 * The row pins for digital output
 	 * 
@@ -50,21 +71,21 @@ public class PotScanner implements Runnable
 	private final int ROW2_PIN = 29;
 	private final int ROW3_PIN = 30;
 
-	
 	/**
 	 * The column pins for the analog input
 	 *	
 	 */
-	private final int COL1_PIN = 31; 	//Grå
-	private final int COL2_PIN = 44;	//Blå
-	private final int COL3_PIN = 32;	//orange
-	private final int COL4_PIN = 34;	//Gul
-	private final int COL5_PIN = 46;	//Vit
-	private final int COL6_PIN = 33;	//Grön
+	private final int COL1_PIN = 31;//31;
+	private final int COL2_PIN = 38;//32;
+	private final int COL3_PIN = 33;//33;
+	private final int COL4_PIN = 40;//34;
+	private final int COL5_PIN = 35;//35;
+	private final int COL6_PIN = 44;//36;
 
 
-
-
+	
+	
+	
 
 
 	/**
@@ -124,7 +145,7 @@ public class PotScanner implements Runnable
 	/**
 	 * Array of pins for digital output
 	 */
-	private int[] _outPin = {ROW1_PIN, ROW2_PIN,ROW3_PIN};
+	private int[] _outPin = {ROW3_PIN};//{ROW1_PIN, ROW2_PIN,ROW3_PIN};
 	
 
 
