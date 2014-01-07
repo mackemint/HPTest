@@ -81,6 +81,7 @@ public class STMainActivity extends IOIOActivity
 	 * Start CC of column 1
 	 */
 	private final int INIT_CC = 60;
+	private int _midiChannel = 0;
 
 	private final static String DEBUG_TAG = "main";
     final static String PROJECT_TAG = "SurfaceTest";
@@ -162,11 +163,12 @@ public class STMainActivity extends IOIOActivity
 			}
 		}
 		
+		//Counter for cc values, increases for every position
+		int ccCounter = 0;
+
 		// Setting up Proxys and Handlers for fader input
 		for (int i = 0; i < FADER_ROWS; i++)
 		{
-			//Counter for cc values, increases for every position
-			int ccCounter = 0;
 			
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
@@ -247,7 +249,7 @@ public class STMainActivity extends IOIOActivity
 			Log.i(DEBUG_TAG,"Note " + note + " off");
 		try 
 		{
-			msg.setMessage(ShortMessage.NOTE_ON, note, vel);
+			msg.setMessage(ShortMessage.NOTE_ON, _midiChannel , note, vel);
 			out_queue.add(msg);
 		} 
 		catch (Exception e) 
@@ -270,7 +272,7 @@ public class STMainActivity extends IOIOActivity
 		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
 		try 
 		{
-			msg.setMessage(ShortMessage.CONTROL_CHANGE, cc, val);
+			msg.setMessage(ShortMessage.CONTROL_CHANGE, _midiChannel, cc, val);
 			out_queue.add(msg);
 		} 
 		
@@ -336,6 +338,8 @@ public class STMainActivity extends IOIOActivity
 		@Override
 		protected void setup() throws ConnectionLostException 
 		{
+			
+			
 			Log.i(DEBUG_TAG,"setup");
 
 			led_ = ioio_.openDigitalOutput(0, false);
@@ -356,12 +360,12 @@ public class STMainActivity extends IOIOActivity
 
 			_buttonThread = new Thread(_buttonScanner);
 
-//			_potThread.start();
+			_potThread.start();
 
 			_buttonThread.start();
 			
 			//Initializing the output
-			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.OPEN_DRAIN), 
+			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL), 
 					BAUD,Parity.NONE,StopBits.ONE);
 			
 			_outputStream = _midiOut.getOutputStream();

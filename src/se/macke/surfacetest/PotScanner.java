@@ -42,32 +42,12 @@ public class PotScanner implements Runnable
 	 */
 	private IOIO _ioio;
 
-//	/**
-//	 * The row pins for digital output
-//	 * 
-//	 */
-//	private final int ROW1_PIN = 28;
-//	private final int ROW2_PIN = 29;
-//	private final int ROW3_PIN = 30;
-//
-//	
-//	/**
-//	 * The column pins for the analog input
-//	 *	
-//	 */
-//	private final int COL1_PIN = 31; 	//Grå
-//	private final int COL2_PIN = 44;	//Blå
-//	private final int COL3_PIN = 32;	//orange
-//	private final int COL4_PIN = 34;	//Gul
-//	private final int COL5_PIN = 46;	//Vit
-//	private final int COL6_PIN = 33;	//Grön
-//
 
 	/**
 	 * The row pins for digital output
 	 * 
 	 */
-	private final int ROW1_PIN = 28;
+	private final int ROW1_PIN = 28; // Top row
 	private final int ROW2_PIN = 29;
 	private final int ROW3_PIN = 30;
 
@@ -81,11 +61,6 @@ public class PotScanner implements Runnable
 	private final int COL4_PIN = 40;//34;
 	private final int COL5_PIN = 35;//35;
 	private final int COL6_PIN = 44;//36;
-
-
-	
-	
-	
 
 
 	/**
@@ -137,15 +112,11 @@ public class PotScanner implements Runnable
 	 */
 	private DigitalOutput[] _digitalOutput;
 
-	/**
-	 * Array of pins to act as a digital ground
-	 */
-//	private DigitalInput[] _gnd;
 
 	/**
 	 * Array of pins for digital output
 	 */
-	private int[] _outPin = {ROW3_PIN};//{ROW1_PIN, ROW2_PIN,ROW3_PIN};
+	private int[] _outPin = {ROW1_PIN, ROW2_PIN,ROW3_PIN};
 	
 
 
@@ -153,7 +124,7 @@ public class PotScanner implements Runnable
 
 	private int _rowCount = 0;
 
-	private int _smoothVal;
+//	private int _smoothVal;
 
 
 
@@ -206,10 +177,10 @@ public class PotScanner implements Runnable
 
 				for (int j = 0; j < _inPin.length; j++)
 				{
-
 					_analogInput[j] = _ioio.openAnalogInput(_inPin[j]); // removed to force syncing
+//						TODO is this efficient enough?
 					_lpf[i][j] = new LowPassFilter(_analogInput[j].read());
-
+//
 					_inputHandler[i][j].setInitial(_lpf[i][j].getPrevious());
 					_analogInput[j].close();
 				}
@@ -282,15 +253,28 @@ public class PotScanner implements Runnable
 		for (int i = 0; i < _inPin.length; i++)
 		{
 			
+				//	For correcting wrong pinout of potentiometers
+				boolean haveSends = _rowCount < 2 && _outPin.length > 1;
 			
-				Log.i(DEBUG_TAG,"Reading input: " + _inPin[i]);
+				Log.i(DEBUG_TAG,"Reading input: " + _inPin[i] + " of row: " + _rowCount);
 				
 				//Opening here to force matrix syncing
 				_analogInput[i] = _ioio.openAnalogInput(_inPin[i]);
-				Thread.sleep(PAUSETIME);
+//				Thread.sleep(PAUSETIME);
 				
-				_analogVal[i] = _analogInput[i].read();
-				_smoothVal = _lpf[_rowCount][i].filterInput(_analogVal[i]);
+				if (haveSends) //The turn pots
+				{
+					double tempVal = _analogInput[i].read() + 0.19;
+					_analogVal[i] = (float) (1 - tempVal);
+				}
+				else		//The slide pots
+					_analogVal[i] = _analogInput[i].read();
+
+				Log.i(DEBUG_TAG,"Reading was: " + _analogVal[i]);
+
+				Log.i(DEBUG_TAG, "Trying to input smooth value" + i);
+
+				int _smoothVal = _lpf[_rowCount][i].filterInput(_analogVal[i]);		//TODO error
 
 				Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + _analogVal[i] + " smooth value is: " + _smoothVal);
 				

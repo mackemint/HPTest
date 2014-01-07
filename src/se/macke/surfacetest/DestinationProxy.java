@@ -22,8 +22,6 @@ public class DestinationProxy
 
 	private STMainActivity _main;
 	
-	private int _cc;
-
 	/**
 	 * The value sent to the output queue
 	 */
@@ -56,6 +54,8 @@ public class DestinationProxy
 		_destinationValue = 100;
 			
 		_ccNumber = cc;
+		
+		Log.i(DEBUG_TAG, "CC set to: " +_ccNumber);
 
 		_ccValue = 100;
 
