@@ -17,15 +17,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 
+
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
+import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff; 
 
 public class STMainActivity extends IOIOActivity 
 {
 
-	
+
 
 	/**
 	 * A proxy class for MIDI I/O
@@ -76,7 +80,7 @@ public class STMainActivity extends IOIOActivity
 	private final int BUTTON_COLUMNS = 6;
 
 	private final int BUTTON_ROWS = 7;
-	
+
 	/**
 	 * Start CC of column 1
 	 */
@@ -84,10 +88,10 @@ public class STMainActivity extends IOIOActivity
 	private int _midiChannel = 0;
 
 	private final static String DEBUG_TAG = "main";
-    final static String PROJECT_TAG = "SurfaceTest";
-     
+	final static String PROJECT_TAG = "SurfaceTest";
+
 	private static final int FADER_ROWS = 3;
-	
+
 	private static final int FADER_COLUMNS = 6;
 
 	private void setupFaders()
@@ -162,24 +166,89 @@ public class STMainActivity extends IOIOActivity
 				_performancePad[i][j].setOnTouchListener(_padListener);
 			}
 		}
-		
+
 		//Counter for cc values, increases for every position
 		int ccCounter = 0;
 
 		// Setting up Proxys and Handlers for fader input
 		for (int i = 0; i < FADER_ROWS; i++)
 		{
-			
+
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
-			_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, STMainActivity.this);
-			
-			_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
-			
-			ccCounter++;
+				_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, STMainActivity.this);
+
+				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
+
+				ccCounter++;
 			}
-			
+
 		}
+	}
+
+	/**
+	 * Creates a keyboard layout for the pad surface
+	 * 
+	 * @param b
+	 */
+	private void setKeyboardLayout(final boolean b) 
+	{
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+
+				int whiteKeyColor = 0xFFFFFFFF;
+				int blackKeyColor = 0xFF808080;
+				int normalColor = 0xFF000000;
+
+				//Setting the keyboard
+				if (b)	
+				{
+					_midiChannel = 1;
+					_padListener.setNoteMode(true);
+
+					//Button rows are backwards
+					for (int i = 0; i < BUTTON_COLUMNS; i++)
+					{
+						//Button col
+						for (int j = 0; j< BUTTON_ROWS; j++)
+						{
+							System.out.printf("index of i is: %d and j is: %d \n" , i , j);
+
+							_performancePad[i][j].getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
+
+							if(i%2 == 0) // Black keys
+							{
+								if (j == 1 || j == 3 || j == 6 && i != 0)
+									_performancePad[i][j].getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
+							}
+							else if(i%2 != 0)
+							{
+								if (j == 0 || j == 2 || j == 4)
+									_performancePad[i][j].getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
+							}
+
+						}
+					}
+				}
+				//Resetting the keyboard
+				else if (!b)
+				{
+					_midiChannel = 0;
+					_padListener.setNoteMode(false);
+					for (int i = 0; i < BUTTON_COLUMNS; i++)
+					{
+						for (int j = 0; j< BUTTON_ROWS; j++)
+						{
+							_performancePad[i][j].getBackground().setColorFilter(null);
+
+						}
+					}
+				}
+			}
+		});
+
 	}
 
 	@Override
@@ -190,7 +259,15 @@ public class STMainActivity extends IOIOActivity
 		setContentView(R.layout.activity_hpmain);
 
 		setupFaders();
+		//		setKeyboardLayout(true);
 
+	}
+	//TODO add pause, resume methods
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		//		setKeyboardLayout(false);
 	}
 
 
@@ -242,6 +319,22 @@ public class STMainActivity extends IOIOActivity
 	{
 		ShortMessage msg = new ShortMessage();
 
+		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
+
+		if (note == 91) //MIDI Channel set to 2
+		{
+			Log.i(DEBUG_TAG,"Before layout change");
+			setKeyboardLayout(true);
+			Log.i(DEBUG_TAG,"Set note mode");
+		}
+		else if (note == 90)
+		{
+			Log.i(DEBUG_TAG,"Before layout change");
+			setKeyboardLayout(false);
+			Log.i(DEBUG_TAG,"Disabled note mode");		
+		}
+
+
 		//		int msg = note;
 		if (vel>0)
 			Log.i(DEBUG_TAG,"Note " + note + " on with velocity:" + vel);
@@ -253,7 +346,7 @@ public class STMainActivity extends IOIOActivity
 			out_queue.add(msg);
 		} 
 		catch (Exception e) 
-		
+
 		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
 		}
@@ -275,9 +368,9 @@ public class STMainActivity extends IOIOActivity
 			msg.setMessage(ShortMessage.CONTROL_CHANGE, _midiChannel, cc, val);
 			out_queue.add(msg);
 		} 
-		
+
 		catch (Exception e) 
-		
+
 		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
 		}
@@ -294,12 +387,12 @@ public class STMainActivity extends IOIOActivity
 
 		/** The on-board LED. */
 		private DigitalOutput led_;
-		
+
 		/**
 		 * The output for MIDI messages
 		 */
 		private Uart _midiOut;
-		
+
 		/**
 		 * The stream used for sending the MIDI bytes
 		 */
@@ -338,12 +431,12 @@ public class STMainActivity extends IOIOActivity
 		@Override
 		protected void setup() throws ConnectionLostException 
 		{
-			
-			
+
+
 			Log.i(DEBUG_TAG,"setup");
 
 			led_ = ioio_.openDigitalOutput(0, false);
-			
+
 			try 
 			{
 				_potScanner = new PotScanner(this.ioio_, _inputHandler);
@@ -363,13 +456,13 @@ public class STMainActivity extends IOIOActivity
 			_potThread.start();
 
 			_buttonThread.start();
-			
+
 			//Initializing the output
 			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL), 
 					BAUD,Parity.NONE,StopBits.ONE);
-			
+
 			_outputStream = _midiOut.getOutputStream();
-	
+
 
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
@@ -392,7 +485,7 @@ public class STMainActivity extends IOIOActivity
 					led_.write(!_performancePad[i][j].isPressed());
 
 			}
-			
+
 			if (!out_queue.isEmpty())
 			{
 				try 

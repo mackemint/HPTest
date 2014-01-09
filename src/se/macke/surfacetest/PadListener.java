@@ -35,6 +35,11 @@ public class PadListener implements OnTouchListener
 
 	Button[][] _button;
 
+	/**
+	 * Used if the control surface is set to Note mode
+	 */
+	private boolean _noteMode = false;
+
 
 	/**
 	 * Sets up a new PadListener
@@ -61,7 +66,7 @@ public class PadListener implements OnTouchListener
 		/**
 		 * Will be set by the accelerometer
 		 */
-		int velocity = 60;
+		int velocity = 90;
 
 		try
 		{
@@ -72,7 +77,8 @@ public class PadListener implements OnTouchListener
 
 //				System.out.println("Pressed button: " + _padNumber);
 
-				releaseColumnMembers(thisButton);		
+				if (!_noteMode)
+					releaseColumnMembers(thisButton);		
 
 				_main.addNoteToQueue(_padNumber, velocity);
 
@@ -163,6 +169,20 @@ public class PadListener implements OnTouchListener
 		//Gives the button a nice green tint
 		b.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
 		Log.i(DEBUG_TAG, "Finished resetting column " + col);
+	}
+
+	/**
+	 * @return the  note mode
+	 */
+	public boolean getNoteMode() {
+		return _noteMode;
+	}
+
+	/**
+	 * @param _noteMode the _noteMode to set
+	 */
+	public void setNoteMode(boolean _noteMode) {
+		this._noteMode = _noteMode;
 	}
 
 

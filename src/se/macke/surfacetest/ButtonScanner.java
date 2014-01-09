@@ -19,6 +19,7 @@ import android.util.Log;
 public class ButtonScanner implements Runnable
 {
 
+	
 	private IOIO _ioio;
 	/**
 	 * An instance of the Main Activity to handle button presses
@@ -134,7 +135,9 @@ public class ButtonScanner implements Runnable
 	/**
 	 * Track on modifier button pressed returns this matrix
 	 */
-	private final int[][] T_ON_MATRIX ={{80,81,82,83},{84,85,6,7},{8,9,10,11},{12,13,14,15}};
+	private final int[][] T_ON_MATRIX = {{80,81,82,83},{84,85,6,7},{8,9,10,11},{12,13,14,15}};
+	
+	private final int[][] SHIFT_MATRIX = {{90,91,92,93},{94,95,6,7},{8,9,10,11},{12,13,14,15}};
 
 	/**
 	 * Default set of notes transmitted to the output queue
@@ -478,7 +481,9 @@ public class ButtonScanner implements Runnable
 				_solo = true;
 			else if(i == MODIFIER_MUTE[0] && j == MODIFIER_MUTE[1])
 				_trackOn = true;
-
+			else if(i == MODIFIER_SHIFT[0] && j == MODIFIER_SHIFT[1])
+				_shift = true;
+			
 
 		}
 		else
@@ -487,6 +492,9 @@ public class ButtonScanner implements Runnable
 				_solo = false;
 			else if(i == MODIFIER_MUTE[0] && j == MODIFIER_MUTE[1])
 				_trackOn = false;
+			else if(i == MODIFIER_SHIFT[0] && j == MODIFIER_SHIFT[1])
+				_shift = false;
+			
 
 
 		}
@@ -531,6 +539,8 @@ public class ButtonScanner implements Runnable
 		//return _hardwareButton.getNoteNumber("s");
 		else if (_trackOn)
 			return T_ON_MATRIX;
+		else if (_shift)
+			return SHIFT_MATRIX;
 		//return _hardwareButton.getNoteNumber("m");
 		return MIDI_NOTE_NUMBER;
 		//return _hardwareButton.getNoteNumber("n");
