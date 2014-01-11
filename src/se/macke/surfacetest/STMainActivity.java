@@ -21,9 +21,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.graphics.LightingColorFilter;
+import android.content.pm.ActivityInfo;
 import android.graphics.PorterDuff; 
 
 public class STMainActivity extends IOIOActivity 
@@ -85,14 +86,18 @@ public class STMainActivity extends IOIOActivity
 	 * Start CC of column 1
 	 */
 	private final int INIT_CC = 60;
+	
 	private int _midiChannel = 0;
 
 	private final static String DEBUG_TAG = "main";
+	
 	final static String PROJECT_TAG = "SurfaceTest";
 
 	private static final int FADER_ROWS = 3;
 
 	private static final int FADER_COLUMNS = 6;
+	
+
 
 	private void setupFaders()
 	{
@@ -184,6 +189,8 @@ public class STMainActivity extends IOIOActivity
 			}
 
 		}
+		
+		
 	}
 
 	/**
@@ -256,21 +263,41 @@ public class STMainActivity extends IOIOActivity
 	{
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
+		// Sets orientation to both sides Landscape
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 		setContentView(R.layout.activity_hpmain);
+		
+		// Starting up, the system bar fades out
+		View rootView = getWindow().getDecorView();
+		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
 
 		setupFaders();
 		//		setKeyboardLayout(true);
 
 	}
+	
 	//TODO add pause, resume methods
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		//		setKeyboardLayout(false);
+		
+//		_potScanner.abort();
+//		_buttonScanner.abort();
+
 	}
 
 
+	//TODO check if this works
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		
+//		_potThread.start();
+//		_buttonThread.start();
+	}
 
 
 	/**
@@ -321,6 +348,10 @@ public class STMainActivity extends IOIOActivity
 
 		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
 
+		//Controller messages have no velocity
+		if (note < 16 && note > 69)
+			vel = 0;
+		
 		if (note == 91) //MIDI Channel set to 2
 		{
 			Log.i(DEBUG_TAG,"Before layout change");
@@ -425,11 +456,12 @@ public class STMainActivity extends IOIOActivity
 		 * 
 		 * @throws ConnectionLostException
 		 *             When IOIO connection is lost.
+		 * @throws InterruptedException 
 		 * 
 		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#setup()
 		 */
 		@Override
-		protected void setup() throws ConnectionLostException 
+		protected void setup() throws ConnectionLostException, InterruptedException 
 		{
 
 
@@ -437,25 +469,21 @@ public class STMainActivity extends IOIOActivity
 
 			led_ = ioio_.openDigitalOutput(0, false);
 
-			try 
-			{
-				_potScanner = new PotScanner(this.ioio_, _inputHandler);
-			} 
-			catch (InterruptedException e) 
-			{
-
-				e.printStackTrace();
-			}
+			_potScanner = new PotScanner(this.ioio_, _inputHandler);
 
 			_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this, led_);
 
-			_potThread = new Thread(_potScanner);
-
-			_buttonThread = new Thread(_buttonScanner);
-
-			_potThread.start();
-
-			_buttonThread.start();
+			
+//			_potThread = new Thread(_potScanner);
+//
+//			_buttonThread = new Thread(_buttonScanner);
+//
+//			_potThread.start();
+//
+//			_buttonThread.start();
+			
+			_potScanner.start();
+			_buttonScanner.start();
 
 			//Initializing the output
 			_midiOut = ioio_.openUart(null,new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL), 
@@ -466,6 +494,23 @@ public class STMainActivity extends IOIOActivity
 
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
+		
+		/**
+		 * Kills the threads
+		 */
+		@Override
+		public void disconnected()
+		{
+			try{
+				
+				_potScanner.abort();
+				_buttonScanner.abort();
+			}
+			catch (NullPointerException e)
+			{
+				System.out.println("Nullpointer error");
+			}
+		}
 
 		/**
 		 * Called repetitively while the IOIO is connected.
@@ -478,31 +523,34 @@ public class STMainActivity extends IOIOActivity
 		@Override
 		public void loop() throws ConnectionLostException 
 		{
-			for (int i = 0; i < _performancePad.length; i++)
-			{
-				for (int j = 0; j < _performancePad.length; j++)
-
-					led_.write(!_performancePad[i][j].isPressed());
-
-			}
+//			for (int i = 0; i < _performancePad.length; i++)
+//			{
+//				for (int j = 0; j < _performancePad.length; j++)
+//
+//					led_.write(!_performancePad[i][j].isPressed());
+//
+//			}
 
 			if (!out_queue.isEmpty())
 			{
 				try 
 				{
 					_outputStream.write(out_queue.poll().getMessage());
+					led_.write(false);
+					Thread.sleep(1);
+					led_.write(true);
 				} 
 				catch (IOException e) 
 				{
 					Log.e(DEBUG_TAG,"Problem with MIDI output");
+				} 
+				catch (InterruptedException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}	
 			}
-			try 
-			{
-				Thread.sleep(10);
-			} 
-			catch (InterruptedException e) {
-			}
+
 		}
 	}
 

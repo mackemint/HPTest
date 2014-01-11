@@ -16,7 +16,7 @@ import android.util.Log;
  * @author macke
  *
  */
-public class ButtonScanner implements Runnable
+public class ButtonScanner extends Thread
 {
 
 	
@@ -137,7 +137,7 @@ public class ButtonScanner implements Runnable
 	 */
 	private final int[][] T_ON_MATRIX = {{80,81,82,83},{84,85,6,7},{8,9,10,11},{12,13,14,15}};
 	
-	private final int[][] SHIFT_MATRIX = {{90,91,92,93},{94,95,6,7},{8,9,10,11},{12,13,14,15}};
+	private final int[][] SHIFT_MATRIX = {{90,91,92,93},{94,95,6,97},{98,99,100,11},{12,103,104,105}};
 
 	/**
 	 * Default set of notes transmitted to the output queue
@@ -561,6 +561,14 @@ public class ButtonScanner implements Runnable
 
 		return getRightMIDIMatrix()[i][j];
 
+	}
+
+
+
+
+	public void abort() {
+		_running = false;
+		interrupt();
 	}
 
 

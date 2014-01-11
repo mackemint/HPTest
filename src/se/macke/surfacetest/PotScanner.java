@@ -20,17 +20,18 @@ import android.util.Log;
  * @author macke
  *
  */
-public class PotScanner implements Runnable
+public class PotScanner extends Thread 
 {
 	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + "PotScanner";
 	
 	private final String[] OUTPUT_DEBUG = {"A", "B", "C"};
 
 	private final String[] INPUT_DEBUG ={"I1","I2","I3","I4","I5","I6"};
+	
 	/**
 	 * Time in ms between cycles 
 	 */
-	private static final long PAUSETIME = 5;
+	private static final long PAUSETIME = 10; //TODO used to be 5
 
 	/**
 	 * Used for pausing the thread
@@ -246,8 +247,9 @@ public class PotScanner implements Runnable
 
 	{
 		_digitalOutput[_rowCount].write(true);
+				Thread.sleep(PAUSETIME);
 		
-		_spi.writeRead(_request, _request.length, _request.length + _response.length, _response, _response.length);
+//		_spi.writeRead(_request, _request.length, _request.length + _response.length, _response, _response.length);
 		Log.i(DEBUG_TAG, "Sent SPI request");
 
 		for (int i = 0; i < _inPin.length; i++)
@@ -260,7 +262,6 @@ public class PotScanner implements Runnable
 				
 				//Opening here to force matrix syncing
 				_analogInput[i] = _ioio.openAnalogInput(_inPin[i]);
-//				Thread.sleep(PAUSETIME);
 				
 				if (haveSends) //The turn pots
 				{
@@ -286,7 +287,7 @@ public class PotScanner implements Runnable
 				_analogInput[i].close();
 			
 
-				Thread.sleep(PAUSETIME);
+//				Thread.sleep(PAUSETIME);
 				
 
 		}
@@ -306,6 +307,12 @@ public class PotScanner implements Runnable
 	
 		if (_rowCount == _outPin.length)
 			_rowCount = 0;
+	}
+	
+	public void abort() 
+	{
+		_running = false;
+		interrupt();
 	}
 
 }

@@ -41,40 +41,32 @@ right_button_note_number = 10 # right navigation
 # This is used to check the launch button count where box_width x box_height = count(launch_button_list)
 # used for volume 
 box_width = 6 # width of the the "red-box" aka tracks
-box_height = 6 #height of the "red-box" aka scenes
+box_height = 5 #height of the "red-box" aka scenes
 
 ### Launch button list *** Required *** Python list format
 # Assigned Left to Right, Top to bottom, comma separated
-#launch_button_list = 
-#[
-#24,25,26,27,28,29,
-#30,31,32,33,34,35,
-#36,37,38,39,40,41,
-#42,43,44,45,46,47,
-#48,49,50,51,52,53,
-#54,55,56,57,58,59
-#]
+#launch_button_list = [24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
 
-launch_button_list = [54,55,56,57,58,59,48,49,50,51,52,53,42,43,44,45,46,47,36,37,38,39,40,41,30,31,32,33,34,35,24,25,26,27,28,29]
+launch_button_list = [54,55,56,57,58,59,48,49,50,51,52,53,42,43,44,45,46,47,36,37,38,39,40,41,30,31,32,33,43,35]
 
 # the number of notes in launch_button_list must match box_width * box_height
 
 # Assigned left to right. Use empty list do disable example below.
-stop_track_buttons = [] # Uncomment this line to use no track stop buttons and add comment to next line
+#stop_track_buttons = [] # Uncomment this line to use no track stop buttons and add comment to next line
 # Track stop code block is enabled if variable is not empty via a count
-#stop_track_buttons = [10,11,12,13]
+stop_track_buttons = [24,25,26,27,28,29]
 ### (if used) stop_track_buttons must match box_width 
 
 # Assigned top to bottom. Use empty list do disable example below.
 # scene_launch_notes = [] # Uncomment this line to use no scene launch buttons and add comment to next line
 # Scene launch code block is enabled if variable is not empty via a count
-scene_launch_notes = [60,61,62,63,64,65]  
+scene_launch_notes = [60,61,62,63,64]  
 ### (if used) scene_launch_notes launch notes must match box_height
 
 ### Stop all clips. Disabled by the use of Python None assignment. Example below.
 #  stop_all_clips = None # Uncomment this line to use no stop all clips button and add comment to next line
 # Stop all clips code block is enabled if variable is set to a valid numeric MIDI value
-stop_all_clips = None
+stop_all_clips = 65
 
 # ******************************************************************************
 # * TEMPO CONTROL PARAMETERS tempo_control.py Tempo Control via BitNomad - Thx C!
@@ -86,8 +78,8 @@ enable_tempo_control = 1 # 1 for yes, 0 for no
 
 # note : tempo_control.py uses session, mixer, midi_channel
 # 70 = tempo_button_up     78 = tempo_button_down
-tempo_button_up = 99
-tempo_button_down = 100
+tempo_button_up = 97
+tempo_button_down = 98
 
 # up and down tempo interval. To go down in bpm use negative
 # examples : -1 = down 1 bpm, 3 = up 3 bpm, .02 = increase by .02 bpm (2/100th of a bpm)
@@ -99,16 +91,16 @@ tempo_button_down_interval = -1
 
 play_button = 15
 stop_button = 14
-rec_button = 13
+rec_button  = 13
 
 #Arm buttons
 arm_button = [0,1,2,3,4,5]
 
 #Solo buttons
-solo_button = [70,71,72,73,74,75]
+solo_button = [80,81,82,83,84,85]
 
 #Mute buttons
-mute_button = [80,81,82,83,84,85]
+mute_button = [70,71,72,73,74,75]
 
 # ******************************************************************************
 # * VOLUME PARAMETERS : CC values for slider. knob, or fader

@@ -350,53 +350,62 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="24" />
+                    android:tag="24"
+                    android:text="@string/stop_clip" android:textSize="37sp" />
 
                 <Button
                     android:id="@+id/r0c1"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="25" />
+                    android:tag="25"
+                    android:text="@string/stop_clip" android:textSize="37sp" />
 
                 <Button
                     android:id="@+id/r0c2"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="26" />
-
+                    android:tag="26"
+                    android:text="@string/stop_clip" 
+                    android:textSize="37sp" />
 
                 <Button
                     android:id="@+id/r0c3"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="27" />
+                    android:tag="27"
+                    android:text="@string/stop_clip" 
+                    android:textSize="37sp" />
 
                 <Button
                     android:id="@+id/r0c4"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="28" />
+                    android:tag="28"
+                android:textSize="37sp" 
+                    android:text="@string/stop_clip" />
 
                 <Button
                     android:id="@+id/r0c5"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:tag="29" />
+                    android:tag="29"
+                    android:text="@string/stop_clip"
+                    android:textSize="37sp" />
 
                 <Button
                     android:id="@+id/r0c6"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-
                     android:tag="65"
-                    android:text="@string/scene"
-                    android:textSize="30sp" />
+                    android:text="@string/stop_scene"
+                    android:textSize="37sp" />
+
             </TableRow>
         </TableLayout>
     </LinearLayout>
