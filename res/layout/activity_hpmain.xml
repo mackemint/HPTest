@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".STMainActivity" >
+    tools:context=".AACSmain" >
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -26,7 +26,7 @@
             android:orientation="vertical"
             android:paddingTop="5dp" >
 
-             <!-- This table row is row 4 -->
+            <!-- This table row is row 4 -->
 
             <TableRow
                 android:layout_width="fill_parent"
@@ -61,7 +61,6 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    
                     android:tag="57" />
 
                 <Button
@@ -87,7 +86,7 @@
                     android:text="@string/scene"
                     android:textSize="30sp" />
             </TableRow>
-            
+
             <!-- This table row is row 4 -->
 
             <TableRow
@@ -123,7 +122,6 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    
                     android:tag="51" />
 
                 <Button
@@ -180,9 +178,9 @@
                     android:layout_weight="1"
                     android:tag="44" >
                 </Button>
-                
-			<!-- Might be appropriate with a separator here... -->
-                
+
+                <!-- Might be appropriate with a separator here... -->
+
                 <Button
                     android:id="@+id/r3c3"
                     android:layout_width="fill_parent"
@@ -351,7 +349,9 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:tag="24"
-                    android:text="@string/stop_clip" android:textSize="37sp" />
+                    android:text="@string/stop_clip"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c1"
@@ -359,7 +359,9 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:tag="25"
-                    android:text="@string/stop_clip" android:textSize="37sp" />
+                    android:text="@string/stop_clip"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c2"
@@ -367,8 +369,9 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:tag="26"
-                    android:text="@string/stop_clip" 
-                    android:textSize="37sp" />
+                    android:text="@string/stop_clip"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c3"
@@ -376,8 +379,9 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:tag="27"
-                    android:text="@string/stop_clip" 
-                    android:textSize="37sp" />
+                    android:text="@string/stop_clip"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c4"
@@ -385,8 +389,9 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:tag="28"
-                android:textSize="37sp" 
-                    android:text="@string/stop_clip" />
+                    android:text="@string/stop_clip"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c5"
@@ -395,7 +400,8 @@
                     android:layout_weight="1"
                     android:tag="29"
                     android:text="@string/stop_clip"
-                    android:textSize="37sp" />
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/r0c6"
@@ -404,8 +410,7 @@
                     android:layout_weight="1"
                     android:tag="65"
                     android:text="@string/stop_scene"
-                    android:textSize="37sp" />
-
+                    android:textSize="21sp" />
             </TableRow>
         </TableLayout>
     </LinearLayout>

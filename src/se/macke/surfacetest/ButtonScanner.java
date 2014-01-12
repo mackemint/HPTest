@@ -24,7 +24,7 @@ public class ButtonScanner extends Thread
 	/**
 	 * An instance of the Main Activity to handle button presses
 	 */
-	private STMainActivity _main;
+	private AACSmain _main;
 
 	/**
 	 * What row is currently HIGH
@@ -146,7 +146,7 @@ public class ButtonScanner extends Thread
 
 //	private HardwareButton[][] _hardwareButton;
 
-	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + "ButtonScanner";
+	private String DEBUG_TAG = AACSmain.PROJECT_TAG + "ButtonScanner";
 
 	private DigitalOutput led_;
 
@@ -159,7 +159,7 @@ public class ButtonScanner extends Thread
 	 * @param led 
 	 * @throws ConnectionLostException
 	 */
-	public ButtonScanner(IOIO ioio, STMainActivity activity, DigitalOutput led) throws ConnectionLostException
+	public ButtonScanner(IOIO ioio, AACSmain activity, DigitalOutput led) throws ConnectionLostException
 	{
 		//		Log.i(DEBUG_TAG , "Constructor" );
 

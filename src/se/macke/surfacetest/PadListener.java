@@ -31,7 +31,7 @@ public class PadListener implements OnTouchListener
 	 */
 	private int _padNumber = 0;
 
-	STMainActivity _main;
+	AACSmain _main;
 
 	Button[][] _button;
 
@@ -49,7 +49,7 @@ public class PadListener implements OnTouchListener
 	 * @param main
 	 * @param b
 	 */
-	public PadListener(STMainActivity main, Button[][] b) 
+	public PadListener(AACSmain main, Button[][] b) 
 	{
 		_main = main;
 

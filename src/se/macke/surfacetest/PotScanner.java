@@ -22,16 +22,17 @@ import android.util.Log;
  */
 public class PotScanner extends Thread 
 {
-	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + "PotScanner";
+	private String DEBUG_TAG = AACSmain.PROJECT_TAG + "PotScanner";
 	
 	private final String[] OUTPUT_DEBUG = {"A", "B", "C"};
 
-	private final String[] INPUT_DEBUG ={"I1","I2","I3","I4","I5","I6"};
+	private final String[] INPUT_DEBUG ={"I0","I1","I2","I3","I4","I5","I6"};
 	
 	/**
 	 * Time in ms between cycles 
 	 */
-	private static final long PAUSETIME = 10; //TODO used to be 5
+	private static final long PAUSETIME = 2; //TODO used to be 5
+
 
 	/**
 	 * Used for pausing the thread
@@ -56,6 +57,7 @@ public class PotScanner extends Thread
 	 * The column pins for the analog input
 	 *	
 	 */
+	private final int FAKE_PIN = 45;
 	private final int COL1_PIN = 31;//31;
 	private final int COL2_PIN = 38;//32;
 	private final int COL3_PIN = 33;//33;
@@ -84,25 +86,25 @@ public class PotScanner extends Thread
 	/**
 	 * SPI master used to force sync between I/O
 	 */
-	private SpiMaster _spi;
-
-	private final int misoPin = 3;
-	
-	private final int mosiPin = 4;
-	
-	private final int clkPin = 5;
-	
-	private final int[] ssPins = {8};
-	
-	private final byte[] _request = {0x7f};
-
-	private final byte[] _response = {0x7f};
+//	private SpiMaster _spi;
+//
+//	private final int misoPin = 3;
+//	
+//	private final int mosiPin = 4;
+//	
+//	private final int clkPin = 5;
+//	
+//	private final int[] ssPins = {8};
+//	
+//	private final byte[] _request = {0x7f};
+//
+//	private final byte[] _response = {0x7f};
 
 	/**
 	 * Array of pins for analog input
 	 */
 
-	private final int[] _inPin = {COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
+	private final int[] _inPin = {FAKE_PIN,COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
 
 	
 	
@@ -157,9 +159,7 @@ public class PotScanner extends Thread
 		_analogInput = new AnalogInput[_inPin.length];
 		
 		
-		_spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPins, SpiMaster.Rate.RATE_1M);
-
-//		_gnd = new DigitalInput[_inPin.length];
+//		_spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPins, SpiMaster.Rate.RATE_1M);
 
 		_digitalOutput = new DigitalOutput[_outPin.length];
 		
@@ -181,8 +181,8 @@ public class PotScanner extends Thread
 					_analogInput[j] = _ioio.openAnalogInput(_inPin[j]); // removed to force syncing
 //						TODO is this efficient enough?
 					_lpf[i][j] = new LowPassFilter(_analogInput[j].read());
-//
 					_inputHandler[i][j].setInitial(_lpf[i][j].getPrevious());
+					
 					_analogInput[j].close();
 				}
 
@@ -194,6 +194,10 @@ public class PotScanner extends Thread
 			_running = false;
 			e.printStackTrace();
 		}
+
+		//Increases the priority of the current thread
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		
 		Log.i(DEBUG_TAG, "Constructor finished");	
 	}
 
@@ -279,6 +283,7 @@ public class PotScanner extends Thread
 
 				Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + _analogVal[i] + " smooth value is: " + _smoothVal);
 				
+				if(i>0)		//TODO fader problem
 				_inputHandler[_rowCount][i].setValue(_smoothVal);
 
 				Log.i(DEBUG_TAG, "Finished smoothing");

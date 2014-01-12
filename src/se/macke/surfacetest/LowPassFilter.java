@@ -16,7 +16,7 @@ public class LowPassFilter
 	
 	private final int MULTIPLIER = 156;
 
-	private static final String DEBUG_TAG = STMainActivity.PROJECT_TAG + "LowPassFilter";
+	private static final String DEBUG_TAG = AACSmain.PROJECT_TAG + "LowPassFilter";
 	
 	int _previousVal;
 

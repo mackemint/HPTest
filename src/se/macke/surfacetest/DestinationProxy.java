@@ -18,9 +18,9 @@ public class DestinationProxy
 	/**
 	 * Concatenating debug message
 	 */
-	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + ":Destination";
+	private String DEBUG_TAG = AACSmain.PROJECT_TAG + ":Destination";
 
-	private STMainActivity _main;
+	private AACSmain _main;
 	
 	/**
 	 * The value sent to the output queue
@@ -46,7 +46,7 @@ public class DestinationProxy
 	 * @param cc - the CC message
 	 * @param main main activity
 	 */
-	public DestinationProxy(int cc, STMainActivity main) 
+	public DestinationProxy(int cc, AACSmain main) 
 	{
 
 		_main = main;

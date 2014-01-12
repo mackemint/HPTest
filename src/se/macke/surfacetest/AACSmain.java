@@ -27,11 +27,8 @@ import android.widget.Button;
 import android.content.pm.ActivityInfo;
 import android.graphics.PorterDuff; 
 
-public class STMainActivity extends IOIOActivity 
+public class AACSmain extends IOIOActivity 
 {
-
-
-
 	/**
 	 * A proxy class for MIDI I/O
 	 */
@@ -86,17 +83,17 @@ public class STMainActivity extends IOIOActivity
 	 * Start CC of column 1
 	 */
 	private final int INIT_CC = 60;
-	
+
 	private int _midiChannel = 0;
 
 	private final static String DEBUG_TAG = "main";
-	
+
 	final static String PROJECT_TAG = "SurfaceTest";
 
 	private static final int FADER_ROWS = 3;
 
-	private static final int FADER_COLUMNS = 6;
-	
+	private static final int FADER_COLUMNS = 7; //TODO used to be 6, workaround for fader problem
+
 
 
 	private void setupFaders()
@@ -159,7 +156,7 @@ public class STMainActivity extends IOIOActivity
 		_performancePad[5][5] = (Button) findViewById(R.id.r5c5);
 		_performancePad[5][6] = (Button) findViewById(R.id.r5c6);
 
-		_padListener = new PadListener(STMainActivity.this, _performancePad);
+		_padListener = new PadListener(AACSmain.this, _performancePad);
 
 		/**
 		 * Setting up TouchListeners for pads
@@ -181,16 +178,16 @@ public class STMainActivity extends IOIOActivity
 
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
-				_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, STMainActivity.this);
+				_destinationProxy[i][j] = new DestinationProxy(INIT_CC-1 + ccCounter, AACSmain.this);	//TODO fader problem
 
 				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
-
+				if (j < FADER_COLUMNS-1)
 				ccCounter++;
 			}
 
 		}
-		
-		
+
+
 	}
 
 	/**
@@ -263,11 +260,11 @@ public class STMainActivity extends IOIOActivity
 	{
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+
 		// Sets orientation to both sides Landscape
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 		setContentView(R.layout.activity_hpmain);
-		
+
 		// Starting up, the system bar fades out
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
@@ -276,15 +273,15 @@ public class STMainActivity extends IOIOActivity
 		//		setKeyboardLayout(true);
 
 	}
-	
+
 	//TODO add pause, resume methods
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		
-//		_potScanner.abort();
-//		_buttonScanner.abort();
+
+		//		_potScanner.abort();
+		//		_buttonScanner.abort();
 
 	}
 
@@ -294,9 +291,9 @@ public class STMainActivity extends IOIOActivity
 	protected void onResume()
 	{
 		super.onResume();
-		
-//		_potThread.start();
-//		_buttonThread.start();
+
+		//		_potThread.start();
+		//		_buttonThread.start();
 	}
 
 
@@ -349,18 +346,19 @@ public class STMainActivity extends IOIOActivity
 		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
 
 		//Controller messages have no velocity
-		if (note < 16 && note > 69)
-			vel = 0;
-		
+		if (vel > 0)
+		{
+			if (note < 16 || note > 69)
+				vel = 1;
+		}
 		if (note == 91) //MIDI Channel set to 2
 		{
-			Log.i(DEBUG_TAG,"Before layout change");
+		
 			setKeyboardLayout(true);
 			Log.i(DEBUG_TAG,"Set note mode");
 		}
 		else if (note == 90)
 		{
-			Log.i(DEBUG_TAG,"Before layout change");
 			setKeyboardLayout(false);
 			Log.i(DEBUG_TAG,"Disabled note mode");		
 		}
@@ -471,17 +469,17 @@ public class STMainActivity extends IOIOActivity
 
 			_potScanner = new PotScanner(this.ioio_, _inputHandler);
 
-			_buttonScanner = new ButtonScanner(this.ioio_, STMainActivity.this, led_);
+			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
-			
-//			_potThread = new Thread(_potScanner);
-//
-//			_buttonThread = new Thread(_buttonScanner);
-//
-//			_potThread.start();
-//
-//			_buttonThread.start();
-			
+
+			//			_potThread = new Thread(_potScanner);
+			//
+			//			_buttonThread = new Thread(_buttonScanner);
+			//
+			//			_potThread.start();
+			//
+			//			_buttonThread.start();
+
 			_potScanner.start();
 			_buttonScanner.start();
 
@@ -492,9 +490,12 @@ public class STMainActivity extends IOIOActivity
 			_outputStream = _midiOut.getOutputStream();
 
 
+			//Increases the priority of the current thread
+			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+			
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
-		
+
 		/**
 		 * Kills the threads
 		 */
@@ -502,7 +503,7 @@ public class STMainActivity extends IOIOActivity
 		public void disconnected()
 		{
 			try{
-				
+
 				_potScanner.abort();
 				_buttonScanner.abort();
 			}
@@ -523,13 +524,13 @@ public class STMainActivity extends IOIOActivity
 		@Override
 		public void loop() throws ConnectionLostException 
 		{
-//			for (int i = 0; i < _performancePad.length; i++)
-//			{
-//				for (int j = 0; j < _performancePad.length; j++)
-//
-//					led_.write(!_performancePad[i][j].isPressed());
-//
-//			}
+			//			for (int i = 0; i < _performancePad.length; i++)
+			//			{
+			//				for (int j = 0; j < _performancePad.length; j++)
+			//
+			//					led_.write(!_performancePad[i][j].isPressed());
+			//
+			//			}
 
 			if (!out_queue.isEmpty())
 			{
@@ -537,7 +538,7 @@ public class STMainActivity extends IOIOActivity
 				{
 					_outputStream.write(out_queue.poll().getMessage());
 					led_.write(false);
-					Thread.sleep(1);
+					Thread.sleep(3);
 					led_.write(true);
 				} 
 				catch (IOException e) 
