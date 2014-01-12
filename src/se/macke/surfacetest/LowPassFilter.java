@@ -12,9 +12,11 @@ import android.util.Log;
 public class LowPassFilter 
 {
 	
-	private static final int _MAX_RES = 126;
+	private static final int _MAX_RES = 125;
+	
+	private final int MULTIPLIER = 156;
 
-	private static final String DEBUG_TAG = STMainActivity.PROJECT_TAG + "LowPassFilter";
+	private static final String DEBUG_TAG = AACSmain.PROJECT_TAG + "LowPassFilter";
 	
 	int _previousVal;
 
@@ -43,7 +45,7 @@ public class LowPassFilter
 
 		Log.i(DEBUG_TAG,"Filtering input: " + input);
 		
-		int filtered = (int) (input * _MAX_RES);
+		int filtered = (int) (input * MULTIPLIER);
 		
 		return compareVals(filtered);
 	}
@@ -57,6 +59,9 @@ public class LowPassFilter
 		if(val != _previousVal)//|| val != _previousVal+1)  || (val != _previousVal))
 			_previousVal = val;
 			
+		if (val > _MAX_RES)
+			return _MAX_RES;
+					
 		return _previousVal;
 			
 	}

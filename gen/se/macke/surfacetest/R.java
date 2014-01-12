@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package se.macke.hptest;
+package se.macke.surfacetest;
 
 public final class R {
     public static final class attr {
@@ -30,26 +30,49 @@ public final class R {
         public static final int ic_launcher=0x7f020002;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0013;
-        public static final int r0c0=0x7f0a0000;
-        public static final int r0c1=0x7f0a0001;
-        public static final int r0c2=0x7f0a0002;
-        public static final int r0c3=0x7f0a0003;
-        public static final int r0c4=0x7f0a0004;
-        public static final int r0c5=0x7f0a0005;
-        public static final int r1c0=0x7f0a0006;
-        public static final int r1c1=0x7f0a0007;
-        public static final int r1c2=0x7f0a0009;
-        public static final int r1c3=0x7f0a000a;
-        public static final int r1c4=0x7f0a000b;
-        public static final int r1c5=0x7f0a000c;
-        public static final int r2c0=0x7f0a000d;
-        public static final int r2c1=0x7f0a000e;
-        public static final int r2c2=0x7f0a000f;
-        public static final int r2c3=0x7f0a0010;
-        public static final int r2c4=0x7f0a0011;
-        public static final int r2c5=0x7f0a0012;
-        public static final int textView=0x7f0a0008;
+        public static final int action_settings=0x7f0a002a;
+        public static final int r0c0=0x7f0a0023;
+        public static final int r0c1=0x7f0a0024;
+        public static final int r0c2=0x7f0a0025;
+        public static final int r0c3=0x7f0a0026;
+        public static final int r0c4=0x7f0a0027;
+        public static final int r0c5=0x7f0a0028;
+        public static final int r0c6=0x7f0a0029;
+        public static final int r1c0=0x7f0a001c;
+        public static final int r1c1=0x7f0a001d;
+        public static final int r1c2=0x7f0a001e;
+        public static final int r1c3=0x7f0a001f;
+        public static final int r1c4=0x7f0a0020;
+        public static final int r1c5=0x7f0a0021;
+        public static final int r1c6=0x7f0a0022;
+        public static final int r2c0=0x7f0a0015;
+        public static final int r2c1=0x7f0a0016;
+        public static final int r2c2=0x7f0a0017;
+        public static final int r2c3=0x7f0a0018;
+        public static final int r2c4=0x7f0a0019;
+        public static final int r2c5=0x7f0a001a;
+        public static final int r2c6=0x7f0a001b;
+        public static final int r3c0=0x7f0a000e;
+        public static final int r3c1=0x7f0a000f;
+        public static final int r3c2=0x7f0a0010;
+        public static final int r3c3=0x7f0a0011;
+        public static final int r3c4=0x7f0a0012;
+        public static final int r3c5=0x7f0a0013;
+        public static final int r3c6=0x7f0a0014;
+        public static final int r4c0=0x7f0a0007;
+        public static final int r4c1=0x7f0a0008;
+        public static final int r4c2=0x7f0a0009;
+        public static final int r4c3=0x7f0a000a;
+        public static final int r4c4=0x7f0a000b;
+        public static final int r4c5=0x7f0a000c;
+        public static final int r4c6=0x7f0a000d;
+        public static final int r5c0=0x7f0a0000;
+        public static final int r5c1=0x7f0a0001;
+        public static final int r5c2=0x7f0a0002;
+        public static final int r5c3=0x7f0a0003;
+        public static final int r5c4=0x7f0a0004;
+        public static final int r5c5=0x7f0a0005;
+        public static final int r5c6=0x7f0a0006;
     }
     public static final class layout {
         public static final int activity_hpmain=0x7f030000;
@@ -58,10 +81,12 @@ public final class R {
         public static final int hpmain=0x7f090000;
     }
     public static final class string {
-        public static final int action_settings=0x7f070001;
-        public static final int app_name=0x7f070000;
-        public static final int init=0x7f070002;
-        public static final int scene=0x7f070003;
+        public static final int action_settings=0x7f070000;
+        public static final int app_name=0x7f070005;
+        public static final int init=0x7f070001;
+        public static final int scene=0x7f070002;
+        public static final int stop_clip=0x7f070004;
+        public static final int stop_scene=0x7f070003;
     }
     public static final class style {
         /** 

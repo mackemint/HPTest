@@ -20,17 +20,19 @@ import android.util.Log;
  * @author macke
  *
  */
-public class PotScanner implements Runnable
+public class PotScanner extends Thread 
 {
-	private String DEBUG_TAG = STMainActivity.PROJECT_TAG + "PotScanner";
+	private String DEBUG_TAG = AACSmain.PROJECT_TAG + "PotScanner";
 	
 	private final String[] OUTPUT_DEBUG = {"A", "B", "C"};
 
-	private final String[] INPUT_DEBUG ={"I1","I2","I3","I4","I5","I6"};
+	private final String[] INPUT_DEBUG ={"I0","I1","I2","I3","I4","I5","I6"};
+	
 	/**
 	 * Time in ms between cycles 
 	 */
-	private static final long PAUSETIME = 5;
+	private static final long PAUSETIME = 2; //TODO used to be 5
+
 
 	/**
 	 * Used for pausing the thread
@@ -42,29 +44,26 @@ public class PotScanner implements Runnable
 	 */
 	private IOIO _ioio;
 
+
 	/**
 	 * The row pins for digital output
 	 * 
 	 */
-	private final int ROW1_PIN = 28;
+	private final int ROW1_PIN = 28; // Top row
 	private final int ROW2_PIN = 29;
 	private final int ROW3_PIN = 30;
 
-	
 	/**
 	 * The column pins for the analog input
 	 *	
 	 */
-	private final int COL1_PIN = 31; 	//Grå
-	private final int COL2_PIN = 44;	//Blå
-	private final int COL3_PIN = 32;	//orange
-	private final int COL4_PIN = 34;	//Gul
-	private final int COL5_PIN = 46;	//Vit
-	private final int COL6_PIN = 33;	//Grön
-
-
-
-
+	private final int FAKE_PIN = 45;
+	private final int COL1_PIN = 31;//31;
+	private final int COL2_PIN = 38;//32;
+	private final int COL3_PIN = 33;//33;
+	private final int COL4_PIN = 40;//34;
+	private final int COL5_PIN = 35;//35;
+	private final int COL6_PIN = 44;//36;
 
 
 	/**
@@ -87,25 +86,25 @@ public class PotScanner implements Runnable
 	/**
 	 * SPI master used to force sync between I/O
 	 */
-	private SpiMaster _spi;
-
-	private final int misoPin = 3;
-	
-	private final int mosiPin = 4;
-	
-	private final int clkPin = 5;
-	
-	private final int[] ssPins = {8};
-	
-	private final byte[] _request = { 0x7f};
-
-	private final byte[] _response = { 0x7f};
+//	private SpiMaster _spi;
+//
+//	private final int misoPin = 3;
+//	
+//	private final int mosiPin = 4;
+//	
+//	private final int clkPin = 5;
+//	
+//	private final int[] ssPins = {8};
+//	
+//	private final byte[] _request = {0x7f};
+//
+//	private final byte[] _response = {0x7f};
 
 	/**
 	 * Array of pins for analog input
 	 */
 
-	private final int[] _inPin = {COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
+	private final int[] _inPin = {FAKE_PIN,COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
 
 	
 	
@@ -116,10 +115,6 @@ public class PotScanner implements Runnable
 	 */
 	private DigitalOutput[] _digitalOutput;
 
-	/**
-	 * Array of pins to act as a digital ground
-	 */
-//	private DigitalInput[] _gnd;
 
 	/**
 	 * Array of pins for digital output
@@ -132,7 +127,7 @@ public class PotScanner implements Runnable
 
 	private int _rowCount = 0;
 
-	private int _smoothVal;
+//	private int _smoothVal;
 
 
 
@@ -164,9 +159,7 @@ public class PotScanner implements Runnable
 		_analogInput = new AnalogInput[_inPin.length];
 		
 		
-		_spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPins, SpiMaster.Rate.RATE_1M);
-
-//		_gnd = new DigitalInput[_inPin.length];
+//		_spi = ioio_.openSpiMaster(misoPin, mosiPin, clkPin, ssPins, SpiMaster.Rate.RATE_1M);
 
 		_digitalOutput = new DigitalOutput[_outPin.length];
 		
@@ -185,11 +178,11 @@ public class PotScanner implements Runnable
 
 				for (int j = 0; j < _inPin.length; j++)
 				{
-
 					_analogInput[j] = _ioio.openAnalogInput(_inPin[j]); // removed to force syncing
+//						TODO is this efficient enough?
 					_lpf[i][j] = new LowPassFilter(_analogInput[j].read());
-
 					_inputHandler[i][j].setInitial(_lpf[i][j].getPrevious());
+					
 					_analogInput[j].close();
 				}
 
@@ -201,6 +194,10 @@ public class PotScanner implements Runnable
 			_running = false;
 			e.printStackTrace();
 		}
+
+		//Increases the priority of the current thread
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		
 		Log.i(DEBUG_TAG, "Constructor finished");	
 	}
 
@@ -254,25 +251,39 @@ public class PotScanner implements Runnable
 
 	{
 		_digitalOutput[_rowCount].write(true);
+				Thread.sleep(PAUSETIME);
 		
-		_spi.writeRead(_request, _request.length, _request.length + _response.length, _response, _response.length);
+//		_spi.writeRead(_request, _request.length, _request.length + _response.length, _response, _response.length);
 		Log.i(DEBUG_TAG, "Sent SPI request");
 
 		for (int i = 0; i < _inPin.length; i++)
 		{
 			
+				//	For correcting wrong pinout of potentiometers
+				boolean haveSends = _rowCount < 2 && _outPin.length > 1;
 			
-				Log.i(DEBUG_TAG,"Reading input: " + _inPin[i]);
+				Log.i(DEBUG_TAG,"Reading input: " + _inPin[i] + " of row: " + _rowCount);
 				
 				//Opening here to force matrix syncing
 				_analogInput[i] = _ioio.openAnalogInput(_inPin[i]);
-				Thread.sleep(PAUSETIME);
 				
-				_analogVal[i] = _analogInput[i].read();
-				_smoothVal = _lpf[_rowCount][i].filterInput(_analogVal[i]);
+				if (haveSends) //The turn pots
+				{
+					double tempVal = _analogInput[i].read() + 0.19;
+					_analogVal[i] = (float) (1 - tempVal);
+				}
+				else		//The slide pots
+					_analogVal[i] = _analogInput[i].read();
+
+				Log.i(DEBUG_TAG,"Reading was: " + _analogVal[i]);
+
+				Log.i(DEBUG_TAG, "Trying to input smooth value" + i);
+
+				int _smoothVal = _lpf[_rowCount][i].filterInput(_analogVal[i]);		//TODO error
 
 				Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + _analogVal[i] + " smooth value is: " + _smoothVal);
 				
+				if(i>0)		//TODO fader problem
 				_inputHandler[_rowCount][i].setValue(_smoothVal);
 
 				Log.i(DEBUG_TAG, "Finished smoothing");
@@ -281,7 +292,7 @@ public class PotScanner implements Runnable
 				_analogInput[i].close();
 			
 
-				Thread.sleep(PAUSETIME);
+//				Thread.sleep(PAUSETIME);
 				
 
 		}
@@ -301,6 +312,12 @@ public class PotScanner implements Runnable
 	
 		if (_rowCount == _outPin.length)
 			_rowCount = 0;
+	}
+	
+	public void abort() 
+	{
+		_running = false;
+		interrupt();
 	}
 
 }

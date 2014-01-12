@@ -57,7 +57,7 @@ public class InputHandler
 	 */
 	private int _lastInput;
 
-	private final static String DEBUG_TAG = STMainActivity.PROJECT_TAG+"InputHandler";
+	private final static String DEBUG_TAG = AACSmain.PROJECT_TAG+"InputHandler";
 	
 
 
