@@ -59,3 +59,4 @@ int string stop_scene 0x7f070003
 int style AppBaseTheme 0x7f080000
 int style AppTheme 0x7f080001
 int xml accessory_filter 0x7f040000
+int xml device_filter 0x7f040001
