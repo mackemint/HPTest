@@ -1,11 +1,19 @@
 
 package se.macke.AACS;
 
+
+
+
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+
 import ioio.lib.api.AnalogInput;
-import ioio.lib.api.DigitalInput;
+
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
-import ioio.lib.api.SpiMaster;
+
 import ioio.lib.api.exception.ConnectionLostException;
 import android.util.Log;
 
@@ -23,11 +31,22 @@ import android.util.Log;
 public class PotScanner extends Thread 
 {
 	private String DEBUG_TAG = AACSmain.PROJECT_TAG + "PotScanner";
-	
+
 	private final String[] OUTPUT_DEBUG = {"A", "B", "C"};
 
-	private final String[] INPUT_DEBUG ={"I0","I1","I2","I3","I4","I5","I6"};
+	private final String[] INPUT_DEBUG = {"I0","I1","I2","I3","I4","I5","I6"};
+
+
+	File file;
+
+	//	String filename = "readBuffered.txt";
+	//	String string = "Read buffer:";
+	//	FileOutputStream outputStream;
+
+	//	AACSmain aacsMain;
+
 	
+
 	/**
 	 * Time in ms between cycles 
 	 */
@@ -57,7 +76,7 @@ public class PotScanner extends Thread
 	 * The column pins for the analog input
 	 *	
 	 */
-//	private final int FAKE_PIN = 45;
+	//	private final int FAKE_PIN = 45;
 	private final int COL1_PIN = 31;//31;
 	private final int COL2_PIN = 38;//32;
 	private final int COL3_PIN = 33;//33;
@@ -82,23 +101,23 @@ public class PotScanner extends Thread
 	 * Array containing columns of analog inputs
 	 */
 	private AnalogInput[] _analogInput;
-	
+
 	/**
 	 * SPI master used to force sync between I/O
 	 */
-//	private SpiMaster _spi;
-//
-//	private final int misoPin = 3;
-//	
-//	private final int mosiPin = 4;
-//	
-//	private final int clkPin = 5;
-//	
-//	private final int[] ssPins = {8};
-//	
-//	private final byte[] _request = {0x7f};
-//
-//	private final byte[] _response = {0x7f};
+	//	private SpiMaster _spi;
+	//
+	//	private final int misoPin = 3;
+	//	
+	//	private final int mosiPin = 4;
+	//	
+	//	private final int clkPin = 5;
+	//	
+	//	private final int[] ssPins = {8};
+	//	
+	//	private final byte[] _request = {0x7f};
+	//
+	//	private final byte[] _response = {0x7f};
 
 	/**
 	 * Array of pins for analog input
@@ -106,8 +125,8 @@ public class PotScanner extends Thread
 
 	private final int[] _inPin = {COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
 
-	
-	
+
+
 
 	/**
 	 * The rows output signal
@@ -120,14 +139,20 @@ public class PotScanner extends Thread
 	 * Array of pins for digital output
 	 */
 	private int[] _outPin = {ROW1_PIN, ROW2_PIN,ROW3_PIN};
-	
 
 
-//	private float[] _analogVal;
+
+	//	private float[] _analogVal;
 
 	private int _rowCount = 0;
 
-//	private int _smoothVal;
+	private int sampleCount_;
+
+//	private final float coef_ = 0.1f;
+
+	//	private int readBufferCount = 0;
+
+	//	private int _smoothVal;
 
 
 
@@ -136,15 +161,20 @@ public class PotScanner extends Thread
 	 * Creates a new scanner with knowledge of the IOIO and the inputhandler form main activity
 	 * 
 	 * @param ioio_
+	 * @param file 
+	 * @param aacSmain 
 	 * @param _inputHandler2
 	 * @throws InterruptedException 
 	 * @throws ConnectionLostException 
 	 */
-	public PotScanner(IOIO ioio_, InputHandler[][] inputHandler) throws InterruptedException, ConnectionLostException
+	public PotScanner(IOIO ioio_, InputHandler[][] inputHandler, File file, AACSmain aacSmain) throws InterruptedException, ConnectionLostException
 	{
 
 		Log.i(DEBUG_TAG, "Constructor");
 
+		//		this.aacsMain = aacSmain;
+
+		this.file = file;
 
 		_ioio = ioio_;
 
@@ -155,9 +185,11 @@ public class PotScanner extends Thread
 		_lpf = new LowPassFilter[_outPin.length][_inPin.length];
 
 		_analogInput = new AnalogInput[_inPin.length];
-		
+
 		_digitalOutput = new DigitalOutput[_outPin.length];
 		
+		int _lpfCounter = 0;
+
 		try
 		{
 			for (int i = 0; i < _outPin.length; i++)
@@ -168,7 +200,7 @@ public class PotScanner extends Thread
 				 * 
 				 */
 				Log.i(DEBUG_TAG, "Opening output" + i);
-				
+
 				_digitalOutput[i] = _ioio.openDigitalOutput(_outPin[i], DigitalOutput.Spec.Mode.NORMAL, true);
 				_ioio.sync();	
 
@@ -177,12 +209,16 @@ public class PotScanner extends Thread
 				{
 					//Only open the outputs the first round
 					if (i < 1)
+					{
 						_analogInput[j] = _ioio.openAnalogInput(_inPin[j]);
-	
-					_lpf[i][j] = new LowPassFilter(_analogInput[j].readSync());	
-//					_lpf[i][j] = new LowPassFilter(_analogInput[j].read());	
-					_inputHandler[i][j].setInitial(_lpf[i][j].getPrevious());
-				
+						_analogInput[j].setBuffer(100);
+					}
+//					_analogInput[j].readBuffered();
+					_lpf[i][j] = new LowPassFilter(_analogInput[j].readSync(),i, _lpfCounter);
+					_lpfCounter++;
+
+					_inputHandler[i][j].setInitial(_lpf[i][j].getIntValue());
+
 				}
 				_digitalOutput[i].write(false);
 
@@ -197,7 +233,7 @@ public class PotScanner extends Thread
 
 		//Increases the priority of the current thread
 		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-		
+
 		Log.i(DEBUG_TAG, "Constructor finished");	
 	}
 
@@ -257,43 +293,23 @@ public class PotScanner extends Thread
 
 		for (int i = 0; i < _inPin.length; i++)
 		{
-			
-			
-				//	For correcting wrong pinout of potentiometers
-				boolean haveSends = _rowCount < 2 && _outPin.length > 1;
-			
-				Log.i(DEBUG_TAG,"Reading input: " + _inPin[i] + " of row: " + _rowCount);
-				
-				//Opening here to force matrix syncing
-//				_analogInput[i] = _ioio.openAnalogInput(_inPin[i]);
-				float analogValue = _analogInput[i].readSync();	
-//				float analogValue = _analogInput[i].read();
-				
-				if (haveSends) //The turn pots, to compensate for wrong wiring
-					 analogValue = (1- (analogValue + 0.19f));
 
-				Log.i(DEBUG_TAG,"Reading was: " + analogValue);
+			Log.i(DEBUG_TAG,"Reading input: " + _inPin[i] + " of row: " + _rowCount);
 
-				Log.i(DEBUG_TAG, "Trying to input smooth value" + i);
 
-				int _smoothVal = _lpf[_rowCount][i].filterInput(analogValue);	
+			float analogValue = _analogInput[i].readSync();	
+			Log.i("AnalogReadBuffered", INPUT_DEBUG[i] + OUTPUT_DEBUG[_rowCount] + ' ' + _analogInput[i].readBuffered());
 
-				Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + analogValue + " smooth value is: " + _smoothVal);
-				
-				_inputHandler[_rowCount][i].setValue(_smoothVal);
+			int smoothVal = _lpf[_rowCount][i].filterInput(analogValue, _rowCount);	
 
-				Log.i(DEBUG_TAG, "Finished smoothing");
+			Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + analogValue + " smooth value is: " + smoothVal);
 
-				//No more closing after reading to force syncing! :) 
-//				_analogInput[i].close();
-			
+			_inputHandler[_rowCount][i].setValue(smoothVal);
 
-//				Thread.sleep(PAUSETIME);
-				
 
 		}
 		_digitalOutput[_rowCount].write(false);
-		
+
 		countRows();
 	}
 
@@ -305,11 +321,11 @@ public class PotScanner extends Thread
 	{
 		Log.i(DEBUG_TAG,"Row counter is: " + _rowCount);
 		_rowCount++;
-	
+
 		if (_rowCount == _outPin.length)
 			_rowCount = 0;
 	}
-	
+
 	public void abort() 
 	{
 		_running = false;

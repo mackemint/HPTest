@@ -22,10 +22,7 @@ public class DestinationProxy
 
 	private AACSmain _main;
 	
-	/**
-	 * The value sent to the output queue
-	 */
-	private int _destinationValue;
+
 
 	/**
 	 * The CC# transmitted
@@ -50,14 +47,12 @@ public class DestinationProxy
 	{
 
 		_main = main;
-		
-		_destinationValue = 100;
 			
 		_ccNumber = cc;
 		
 		Log.i(DEBUG_TAG, "CC set to: " +_ccNumber);
 
-		_ccValue = 100;
+		_ccValue = 70;
 
 		Log.i(DEBUG_TAG,"Setting initial destination value to" + _ccValue);
 	}

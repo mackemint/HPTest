@@ -133,14 +133,15 @@ public class InputHandler
 		Log.i(DEBUG_TAG,"lastVal is: " + _lastVal + " _inputVal is: " + input + " destinationVal: " + destinationVal + " Takeover is " + _takeOver + ", last: " + _lastNotSame);
 
 		// If the difference between the destination value and the input value is small enough, takeover is set to True
-		if(Math.abs(destinationVal - input) < EPSILON)
-				_takeOver = true;
+//		if(Math.abs(destinationVal - input) < EPSILON)
+//				_takeOver = true;
 		
 		// If the fader value has passed the value of the destination, takeover is set to true!
+		// This only happens while going down!
 		if(_lastInput > destinationVal && destinationVal >= input)
 			_takeOver = true;
-		if(_lastInput < destinationVal && destinationVal <= input)
-			_takeOver = true;
+//		if(_lastInput < destinationVal && destinationVal <= input)
+//			_takeOver = true;
 
 		
 		// Sets the destination to True to mark that takeover is happening

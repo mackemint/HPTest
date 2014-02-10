@@ -18,61 +18,107 @@ public class LowPassFilter
 
 	private static final String DEBUG_TAG = AACSmain.PROJECT_TAG + "LowPassFilter";
 	
-	int _previousVal;
+	//The filtered value for comparison
+	float _fVal;
 
+	/**
+	 * Filter coefficient value
+	 */
+	private final float coef_ = 0.6f;
+
+	private int _intVal;
+	
+	int _lpfCounter;
+	
 	/**
 	 * Creates a new LowPassFilter with an initial value
 	 * 
 	 * @param initial
+	 * @param _lpfCounter 
 	 */
-	public LowPassFilter(float initial)
+	public LowPassFilter(float initial, int row, int lpfCounter)
 	{
 		Log.i(DEBUG_TAG,"Constructor");
-
-		_previousVal = (int) (initial*_MAX_RES);
 		
-		Log.i(DEBUG_TAG,"Setting previous value to " + initial);
+		//Correcting wrong wiring of potentiometers
+	
+		initial = getRightPolarity(initial, row);
 
+//		_previousVal = (int) (initial*_MAX_RES);
+		_fVal =  initial;
+		
+		_lpfCounter = lpfCounter;
+		
+//		Log.i(DEBUG_TAG,"Setting previous value to " + initial);
+
+	}
+
+	/**
+	 * Method for returning the right polarity of the pots that I accidently miswired.
+	 * 
+	 * @param val  analog value
+	 * @param row  the row 0 and 1 are wrong wired
+	 * 
+	 * @return value with the right polarity
+	 */
+	private float getRightPolarity(float val, int row) 
+	{
+		if (row < 2)
+			return val = (1- (val + 0.19f));
+		
+		return val;
 	}
 	
 	/**
-	 * This takes a float from 0-1, multiplies it with 126 and returns an integer number
+	 * This takes a float from 0-1, multiplies it with a constant and returns an integer number
 	 * @param input from the IOIO
 	 * @return a filtered integer number
 	 */
-	public int filterInput(float input) 
+	public int filterInput(float input, int row) 
 	{
 
 		Log.i(DEBUG_TAG,"Filtering input: " + input);
 		
-		int filtered = (int) (input * MULTIPLIER);
+		input = getRightPolarity(input, row);
 		
-		return compareVals(filtered);
+		_fVal = input * (1.f - coef_) + _fVal * coef_;
+//		_fVal = input;
+		
+		_intVal = (int) (_fVal * MULTIPLIER);
+		
+
+		Log.i(DEBUG_TAG,"LPF" + _lpfCounter + " input: " + input + " _fVal: " + _fVal + " _intVal: " + _intVal);
+
+		return assertVal(_intVal);
 	}
 
-	private int compareVals(int val)
+	/**
+	 * Assertion that the value is in the right scope
+	 * 
+	 * @param the input
+	 * 
+	 * @return a value between 0 - 127
+	 */
+	private int assertVal(int val)
 	{
 
-		Log.i(DEBUG_TAG,"Comparing " + val + " with " + _previousVal);
-		
-		//Check to see if the value is swaying slightly
-		if(val != _previousVal)//|| val != _previousVal+1)  || (val != _previousVal))
-			_previousVal = val;
-			
+
 		if (val > _MAX_RES)
 			return _MAX_RES;
+		if (val < 0)
+			return 0;
 					
-		return _previousVal;
+		return val;
 			
 	}
 	
 	/**
 	 * 
-	 * @return the previous value
+	 * @return the int value
 	 */
-	public int getPrevious()
+	public int getIntValue()
 	{
-		return _previousVal;
+		return _intVal;
 	}
 
 }

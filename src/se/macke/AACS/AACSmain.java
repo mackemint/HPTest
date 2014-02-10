@@ -2,11 +2,12 @@ package se.macke.AACS;
 
 import ioio.javax.sound.midi.MidiMessage;
 import ioio.javax.sound.midi.ShortMessage;
+//import ioio.lib.api.CapSense;
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutput.Spec;
 import ioio.lib.api.DigitalOutput.Spec.Mode;
-import ioio.lib.api.DigitalInput.*;
+//import ioio.lib.api.DigitalInput.*;
 
 
 import ioio.lib.api.Uart;
@@ -17,6 +18,7 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -31,6 +33,8 @@ import android.graphics.PorterDuff;
 
 public class AACSmain extends IOIOActivity 
 {
+	
+	File file;
 	/**
 	 * A proxy class for MIDI I/O
 	 */
@@ -88,9 +92,12 @@ public class AACSmain extends IOIOActivity
 
 	private int _midiChannel = 0;
 
-	private final static String DEBUG_TAG = "main";
+	private final  String DEBUG_TAG = "main";
 
-	final static String PROJECT_TAG = "SurfaceTest";
+//	final static  String PROJECT_TAG = (String) getActivity().findViewById(R.string.app_name).toString();
+	final static  String PROJECT_TAG = "AACS5.02";
+	
+
 
 	private static final int FADER_ROWS = 3;
 
@@ -212,7 +219,7 @@ public class AACSmain extends IOIOActivity
 				//Setting the keyboard
 				if (b)	
 				{
-					_midiChannel = 1;
+//					_midiChannel = 1;
 					_padListener.setNoteMode(true);
 
 					//Button rows are backwards
@@ -274,6 +281,9 @@ public class AACSmain extends IOIOActivity
 
 		setupFaders();
 		//		setKeyboardLayout(true);
+		
+		file = new File(this.getFilesDir(), "readBuffered.txt");
+		
 
 	}
 
@@ -344,12 +354,7 @@ public class AACSmain extends IOIOActivity
 
 		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
 
-		//Controller messages have no velocity
-		if (vel > 0)
-		{
-			if (note < 16 || note > 69)
-				vel = 1;
-		}
+
 		if (note == 91) //MIDI Channel set to 2
 		{
 		
@@ -360,6 +365,14 @@ public class AACSmain extends IOIOActivity
 		{
 			setKeyboardLayout(false);
 			Log.i(DEBUG_TAG,"Disabled note mode");		
+		}
+		//Only note mode for pads
+		if(_padListener.getNoteMode())
+		{
+			if (note > 23 && note < 66)
+				_midiChannel = 1;
+			else
+				_midiChannel = 0;
 		}
 
 
@@ -389,11 +402,13 @@ public class AACSmain extends IOIOActivity
 	public void addCcToQueue(int cc, int val)
 	{
 		ShortMessage msg = new ShortMessage();
+		
+		int ccMIDICh = 0;
 
 		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
 		try 
 		{
-			msg.setMessage(ShortMessage.CONTROL_CHANGE, _midiChannel, cc, val);
+			msg.setMessage(ShortMessage.CONTROL_CHANGE, ccMIDICh, cc, val);
 			out_queue.add(msg);
 		} 
 
@@ -460,24 +475,14 @@ public class AACSmain extends IOIOActivity
 
 			led_ = ioio_.openDigitalOutput(0, false);
 
-			_potScanner = new PotScanner(this.ioio_, _inputHandler);
+			_potScanner = new PotScanner(this.ioio_, _inputHandler, file, AACSmain.this);
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
 
-			//			_potThread = new Thread(_potScanner);
-			//
-			//			_buttonThread = new Thread(_buttonScanner);
-			//
-			//			_potThread.start();
-			//
-			//			_buttonThread.start();
-
 			_potScanner.start();
 			
-			
-			
-			_buttonScanner.start();
+//			_buttonScanner.start();
 
 			//Initializing the output
 			_midiOut = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN,DigitalInput.Spec.Mode.PULL_DOWN),

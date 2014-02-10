@@ -281,7 +281,7 @@ public class ButtonScanner extends Thread
 		for (int j = 0; j < row_.length; j++)
 		{
 			digitOut[j].write(true);
-			_ioio.sync();	
+//			_ioio.sync();	
 
 			for(int i = 0; i < col_.length; i++)
 			{
@@ -430,7 +430,7 @@ public class ButtonScanner extends Thread
 	 */
 	private void handleMessage(int i, int j, Boolean noteCmd) 
 	{
-		int noteOn = 127;
+		int noteOn = 1;
 		int noteOff = 0;
 
 		/*
