@@ -29,10 +29,12 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.content.pm.ActivityInfo;
+import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff; 
 
 public class AACSmain extends IOIOActivity 
 {
+	Params _params;
 	
 	File file;
 	/**
@@ -41,7 +43,7 @@ public class AACSmain extends IOIOActivity
 	private DestinationProxy[][] _destinationProxy;
 	/**
 	 * An input handler takes care of the communication between the faders
-	 * an the destination
+	 * and the destination
 	 */
 	private InputHandler[][] _inputHandler;
 
@@ -90,7 +92,7 @@ public class AACSmain extends IOIOActivity
 	 */
 	private final int INIT_CC = 60;
 
-	private int _midiChannel = 0;
+	private int _midiChannel = _params.getMIDIChannel();
 
 	private final  String DEBUG_TAG = "main";
 
@@ -176,6 +178,7 @@ public class AACSmain extends IOIOActivity
 			for (int j = 0; j < BUTTON_ROWS; j++)
 			{
 				_performancePad[i][j].setOnTouchListener(_padListener);
+				_performancePad[i][j].setTag(_params.getLaunchButton(i, j));
 			}
 		}
 
@@ -188,7 +191,7 @@ public class AACSmain extends IOIOActivity
 
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
-				_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, AACSmain.this);	//TODO fader problem -1
+				_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, AACSmain.this);
 
 				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
 
@@ -370,9 +373,9 @@ public class AACSmain extends IOIOActivity
 		if(_padListener.getNoteMode())
 		{
 			if (note > 23 && note < 66)
-				_midiChannel = 1;
+				_midiChannel = _params.getMIDIChannel() - 1;
 			else
-				_midiChannel = 0;
+				_midiChannel = _params.getMIDIChannel();
 		}
 
 
@@ -403,7 +406,7 @@ public class AACSmain extends IOIOActivity
 	{
 		ShortMessage msg = new ShortMessage();
 		
-		int ccMIDICh = 0;
+		int ccMIDICh = _params.getMIDIChannel();
 
 		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
 		try 
@@ -453,6 +456,11 @@ public class AACSmain extends IOIOActivity
 		 * A class for handling fader and knob input
 		 */
 		private PotScanner _potScanner;
+		
+		/**
+		 * Class for reading input messages
+		 */
+		private MidiIn _midiIn;
 
 
 
@@ -479,10 +487,13 @@ public class AACSmain extends IOIOActivity
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
+			_midiIn = new MidiIn(this.ioio_, AACSmain.this);
 
 			_potScanner.start();
 			
-//			_buttonScanner.start();
+			_buttonScanner.start();
+			
+			_midiIn.start();
 
 			//Initializing the output
 			_midiOut = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN,DigitalInput.Spec.Mode.PULL_DOWN),
@@ -507,6 +518,7 @@ public class AACSmain extends IOIOActivity
 
 				_potScanner.abort();
 				_buttonScanner.abort();
+				_midiIn.abort();
 			}
 			catch (NullPointerException e)
 			{
@@ -567,9 +579,21 @@ public class AACSmain extends IOIOActivity
 		return new IOIO();
 	}
 
+	public void setColorOfPad(int noteNumber) 
+	{
+		int[] coord = new int[2];
+		coord = _params.findPosition(noteNumber);
+		Button b = _performancePad[coord[0]][coord[1]];
+		
+		for (int i = 0; i < _performancePad.length; i++)
+		{
+			if(_performancePad[i][coord[1]] != b)
+				_performancePad[i][coord[1]].getBackground().setColorFilter(null);
+		}
 
-
-
-
+		//Gives the button a nice green tint
+		_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,0xFF00FF00));
+		
+	}
 
 }

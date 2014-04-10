@@ -46,10 +46,10 @@ public class InputHandler
 	 */
 	private boolean _takeOver;
 
-	/**
-	 * The tolerance between the destination value and the input value
-	 */
-	private final int EPSILON = 2;
+//	/**
+//	 * The tolerance between the destination value and the input value
+//	 */
+//	private final int EPSILON = 2;
 
 	/**
 	 * Saves the last input for comparison with the current input.
@@ -70,6 +70,8 @@ public class InputHandler
 	public InputHandler(DestinationProxy destination) 
 	{
 		_destination = destination;
+		
+		setTakeOver(true);
 
 	}
 

@@ -29,7 +29,7 @@ public class PadListener implements OnTouchListener
 	/**
 	 * Pad numbers are contained as tags in the layout
 	 */
-	private int _padNumber = 0;
+//	private int _padNumber = 0;
 
 	AACSmain _main;
 
@@ -54,6 +54,7 @@ public class PadListener implements OnTouchListener
 		_main = main;
 
 		_button = b;
+		
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class PadListener implements OnTouchListener
 	{
 		Button thisButton = (Button) v;
 
-		_padNumber = Integer.valueOf(String.valueOf(v.getTag()));
+		int padNumber = Integer.valueOf(String.valueOf(v.getTag()));
 
 		/**
 		 * Will be set by the accelerometer
@@ -80,7 +81,7 @@ public class PadListener implements OnTouchListener
 				if (!_noteMode)
 					releaseColumnMembers(thisButton);		
 
-				_main.addNoteToQueue(_padNumber, velocity);
+				_main.addNoteToQueue(padNumber, velocity);
 
 				break;
 
@@ -88,7 +89,7 @@ public class PadListener implements OnTouchListener
 
 //				System.out.println("Released button: " + _padNumber);
 
-				_main.addNoteToQueue(_padNumber, 0);
+				_main.addNoteToQueue(padNumber, 0);
 
 				break;
 				
