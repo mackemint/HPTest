@@ -3,17 +3,24 @@ package se.macke.AACS;
 public class Params 
 {
 	/**
-	 * TODO 
+	 * The Params file is a place to store all note values and other parameters
+	 * for the controller.
+	 * 
 	 */
+	public Params()
+	{
+		
+	}
+	
+
 	private final int[][] LAUNCH_BUTTON = 
 		{
-			{24,25,26,27,28,29},
-			{30,31,32,33,34,35},
-			{36,37,38,39,40,41},
-			{42,43,44,45,46,47},
-			{48,49,50,51,52,53},
-			{54,55,56,57,58,59},
-			{60,61,62,63,64,65}//This row is the scene launch buttons
+			{24,25,26,27,28,29,65},
+			{30,31,32,33,34,35,64},
+			{36,37,38,39,40,41,63},
+			{42,43,44,45,46,47,62},
+			{48,49,50,51,52,53,61},
+			{54,55,56,57,58,59,60},
 		};
 
 
@@ -56,9 +63,9 @@ public class Params
 	private final int[][] SHIFT_MATRIX = 
 										{
 										{90,91,92,93},
-										{94,95,6,97},
-										{98,99,100,11},	
-										{12,103,104,105}
+										{94,95,6,7},
+										{8,99,100,111},	
+										{112,103,104,105}
 										};
 
 	/**
@@ -77,10 +84,6 @@ public class Params
 	private final int MIDI_CHANNEL = 15;
 
 
-	public Params()
-	{
-
-	}
 
 	/**
 	 * Finds position of item.
@@ -159,6 +162,26 @@ public class Params
 		public int getMIDIChannel() {
 
 			return MIDI_CHANNEL;
+		}
+
+		public int[][] getSoloValues() {
+			// TODO Auto-generated method stub
+			return SOLO_MATRIX;
+		}
+
+		public int[][] getMuteValues() {
+			// TODO Auto-generated method stub
+			return MUTE_MATRIX;
+		}
+
+		public int[][] getShiftValues() {
+			// TODO Auto-generated method stub
+			return SHIFT_MATRIX;
+		}
+
+		public int[][] getNoteValues() {
+			// TODO Auto-generated method stub
+			return BUTTON_MATRIX;
 		}
 
 }

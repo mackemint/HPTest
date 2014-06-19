@@ -1,5 +1,6 @@
 package se.macke.AACS;
 
+
 import ioio.javax.sound.midi.MidiMessage;
 import ioio.javax.sound.midi.ShortMessage;
 //import ioio.lib.api.CapSense;
@@ -28,13 +29,17 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff; 
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
 public class AACSmain extends IOIOActivity 
 {
-	Params _params;
+	Params _params = new Params();
 	
 	File file;
 	/**
@@ -60,6 +65,7 @@ public class AACSmain extends IOIOActivity
 	 * Column number 7 consists of scene launch buttons
 	 */
 	private Button[][] _performancePad;
+	
 
 
 	/**
@@ -87,16 +93,15 @@ public class AACSmain extends IOIOActivity
 
 	private final int BUTTON_ROWS = 7;
 
-	/**
-	 * Start CC of column 1
-	 */
-	private final int INIT_CC = 60;
-
-	private int _midiChannel = _params.getMIDIChannel();
-
 	private final  String DEBUG_TAG = "main";
 
-//	final static  String PROJECT_TAG = (String) getActivity().findViewById(R.string.app_name).toString();
+	/**
+	 * Sensor handlers used by app
+	 */
+	private SensorManager sensorManager;
+	private Sensor accelerometer;
+	private SensorEventListener sensorListener;
+
 	final static  String PROJECT_TAG = "AACS5.02";
 	
 
@@ -110,14 +115,13 @@ public class AACSmain extends IOIOActivity
 	
 	private void setupFaders()
 	{
-		_columnCounter = 0;
 
 		_destinationProxy = new DestinationProxy[FADER_ROWS][FADER_COLUMNS];
 
 		_inputHandler = new InputHandler[FADER_ROWS][FADER_COLUMNS];
 
 		_performancePad = new Button[BUTTON_COLUMNS][BUTTON_ROWS];
-
+		
 		// Setting up on screen buttons
 
 		_performancePad[0][0] = (Button) findViewById(R.id.r0c0);
@@ -168,22 +172,23 @@ public class AACSmain extends IOIOActivity
 		_performancePad[5][5] = (Button) findViewById(R.id.r5c5);
 		_performancePad[5][6] = (Button) findViewById(R.id.r5c6);
 
-		_padListener = new PadListener(AACSmain.this, _performancePad);
+		
+		
+		_padListener = new PadListener(AACSmain.this, _performancePad, sensorListener);
 
 		/**
 		 * Setting up TouchListeners for pads
 		 */
-		for (int i = 0; i < BUTTON_COLUMNS; i++)
+		for (int i = 0; i < _performancePad.length ; i++)
 		{
-			for (int j = 0; j < BUTTON_ROWS; j++)
+			for (int j = 0; j < _performancePad[0].length; j++)
 			{
 				_performancePad[i][j].setOnTouchListener(_padListener);
 				_performancePad[i][j].setTag(_params.getLaunchButton(i, j));
 			}
 		}
 
-		//Counter for cc values, increases for every position
-		int ccCounter = 0;
+
 
 		// Setting up Proxys and Handlers for fader input
 		for (int i = 0; i < FADER_ROWS; i++)
@@ -191,11 +196,11 @@ public class AACSmain extends IOIOActivity
 
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
-				_destinationProxy[i][j] = new DestinationProxy(INIT_CC + ccCounter, AACSmain.this);
+				int ccNum = _params.getPotValue(i, j);
+				_destinationProxy[i][j] = new DestinationProxy(ccNum, AACSmain.this);
 
 				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
 
-				ccCounter++;
 			}
 
 		}
@@ -222,7 +227,6 @@ public class AACSmain extends IOIOActivity
 				//Setting the keyboard
 				if (b)	
 				{
-//					_midiChannel = 1;
 					_padListener.setNoteMode(true);
 
 					//Button rows are backwards
@@ -252,7 +256,6 @@ public class AACSmain extends IOIOActivity
 				//Resetting the keyboard
 				else if (!b)
 				{
-					_midiChannel = 0;
 					_padListener.setNoteMode(false);
 					for (int i = 0; i < BUTTON_COLUMNS; i++)
 					{
@@ -282,30 +285,37 @@ public class AACSmain extends IOIOActivity
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
 
+		registerSensors();		
 		setupFaders();
 		//		setKeyboardLayout(true);
 		
-		file = new File(this.getFilesDir(), "readBuffered.txt");
-		
 
 	}
-
-	//TODO add pause, resume methods
+	/**
+	 * Sensor register method
+	 */
+	private void registerSensors()
+	{
+		
+		sensorListener = new MySensorEventListener();
+		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+	}
+	
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
+		sensorManager.unregisterListener(sensorListener);
 
 	}
 
-
-	//TODO check if this works
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-
-
+		sensorManager.registerListener(sensorListener, accelerometer, 
+				SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
 
@@ -354,11 +364,11 @@ public class AACSmain extends IOIOActivity
 	public void addNoteToQueue(int note, int vel)
 	{
 		ShortMessage msg = new ShortMessage();
+		int midiCh = _params.getMIDIChannel();
 
 		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
 
-
-		if (note == 91) //MIDI Channel set to 2
+		if (note == 91) //Keyboard layout of pads
 		{
 		
 			setKeyboardLayout(true);
@@ -373,11 +383,10 @@ public class AACSmain extends IOIOActivity
 		if(_padListener.getNoteMode())
 		{
 			if (note > 23 && note < 66)
-				_midiChannel = _params.getMIDIChannel() - 1;
+				midiCh -= 1;
 			else
-				_midiChannel = _params.getMIDIChannel();
+				midiCh = _params.getMIDIChannel();
 		}
-
 
 		//		int msg = note;
 		if (vel>0)
@@ -386,7 +395,7 @@ public class AACSmain extends IOIOActivity
 			Log.i(DEBUG_TAG,"Note " + note + " off");
 		try 
 		{
-			msg.setMessage(ShortMessage.NOTE_ON, _midiChannel , note, vel);
+			msg.setMessage(ShortMessage.NOTE_ON, midiCh , note, vel);
 			out_queue.add(msg);
 		} 
 		catch (Exception e) 
@@ -432,7 +441,7 @@ public class AACSmain extends IOIOActivity
 		private static final int MIDI_OUTPUT_PIN = 7;
 		private static final int MIDI_INPUT_PIN = 6;
 
-		private final ioio.lib.api.DigitalInput.Spec INPUT = new ioio.lib.api.DigitalInput.Spec(MIDI_INPUT_PIN);
+//		private final ioio.lib.api.DigitalInput.Spec INPUT = new ioio.lib.api.DigitalInput.Spec(MIDI_INPUT_PIN);
 
 		/** The on-board LED. */
 		private DigitalOutput led_;
@@ -460,7 +469,7 @@ public class AACSmain extends IOIOActivity
 		/**
 		 * Class for reading input messages
 		 */
-		private MidiIn _midiIn;
+//		private MidiIn _midiIn;	TODO
 
 
 
@@ -487,13 +496,13 @@ public class AACSmain extends IOIOActivity
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
-			_midiIn = new MidiIn(this.ioio_, AACSmain.this);
+//			_midiIn = new MidiIn(this.ioio_, AACSmain.this);	TODO
 
 			_potScanner.start();
 			
 			_buttonScanner.start();
 			
-			_midiIn.start();
+//			_midiIn.start();	TODO
 
 			//Initializing the output
 			_midiOut = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN,DigitalInput.Spec.Mode.PULL_DOWN),
@@ -518,7 +527,7 @@ public class AACSmain extends IOIOActivity
 
 				_potScanner.abort();
 				_buttonScanner.abort();
-				_midiIn.abort();
+//				_midiIn.abort();	TODO
 			}
 			catch (NullPointerException e)
 			{
@@ -537,13 +546,7 @@ public class AACSmain extends IOIOActivity
 		@Override
 		public void loop() throws ConnectionLostException 
 		{
-			//			for (int i = 0; i < _performancePad.length; i++)
-			//			{
-			//				for (int j = 0; j < _performancePad.length; j++)
-			//
-			//					led_.write(!_performancePad[i][j].isPressed());
-			//
-			//			}
+
 
 			if (!out_queue.isEmpty())
 			{

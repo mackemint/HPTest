@@ -29,7 +29,7 @@ public class HardwareButton
 	 */
 	private String _modifier;
 
-	private boolean _pressed;
+	private int _pressed;
 
 	
 	/**
@@ -44,6 +44,8 @@ public class HardwareButton
 	 */
 	public HardwareButton(int shift, int note, int solo, int mute, String modifier)
 	{
+		_pressed = 2;
+		
 		_modifier = modifier;
 		
 		_shiftNumber = shift;
@@ -130,20 +132,19 @@ public class HardwareButton
 		
 		return _noteNumber;
 	}
-	
-	/**
-	 * 
-	 * @return true if button is pressed, else false
-	 */
-	public boolean isPressed()
-	{
 
-		
+	public boolean isPressed() {
+
 		if (_currentState && !_previousState)
-			return _pressed = true;
-		else if(!_currentState && _previousState)
-			return _pressed = false;
+			return true;
 		
-		return _pressed;
+		return false;
+	}
+	public boolean isReleased()
+	{
+		if(!_currentState && _previousState)
+			return true;
+		
+		return false;
 	}
 }

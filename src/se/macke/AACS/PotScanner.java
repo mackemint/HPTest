@@ -1,14 +1,7 @@
 
 package se.macke.AACS;
 
-
-
-
-
-
 import java.io.File;
-import java.io.FileOutputStream;
-
 import ioio.lib.api.AnalogInput;
 
 import ioio.lib.api.DigitalOutput;
@@ -35,23 +28,6 @@ public class PotScanner extends Thread
 	private final String[] OUTPUT_DEBUG = {"A", "B", "C"};
 
 	private final String[] INPUT_DEBUG = {"I0","I1","I2","I3","I4","I5","I6"};
-
-
-	File file;
-
-	//	String filename = "readBuffered.txt";
-	//	String string = "Read buffer:";
-	//	FileOutputStream outputStream;
-
-	//	AACSmain aacsMain;
-
-	
-
-	/**
-	 * Time in ms between cycles 
-	 */
-	private static final long PAUSETIME = 2; //TODO used to be 5
-
 
 	/**
 	 * Used for pausing the thread
@@ -103,30 +79,9 @@ public class PotScanner extends Thread
 	private AnalogInput[] _analogInput;
 
 	/**
-	 * SPI master used to force sync between I/O
-	 */
-	//	private SpiMaster _spi;
-	//
-	//	private final int misoPin = 3;
-	//	
-	//	private final int mosiPin = 4;
-	//	
-	//	private final int clkPin = 5;
-	//	
-	//	private final int[] ssPins = {8};
-	//	
-	//	private final byte[] _request = {0x7f};
-	//
-	//	private final byte[] _response = {0x7f};
-
-	/**
 	 * Array of pins for analog input
 	 */
-
 	private final int[] _inPin = {COL1_PIN,COL2_PIN,COL3_PIN,COL4_PIN,COL5_PIN,COL6_PIN};
-
-
-
 
 	/**
 	 * The rows output signal
@@ -140,21 +95,7 @@ public class PotScanner extends Thread
 	 */
 	private int[] _outPin = {ROW1_PIN, ROW2_PIN,ROW3_PIN};
 
-
-
-	//	private float[] _analogVal;
-
 	private int _rowCount = 0;
-
-	private int sampleCount_;
-
-//	private final float coef_ = 0.1f;
-
-	//	private int readBufferCount = 0;
-
-	//	private int _smoothVal;
-
-
 
 
 	/**
@@ -172,10 +113,6 @@ public class PotScanner extends Thread
 
 		Log.i(DEBUG_TAG, "Constructor");
 
-		//		this.aacsMain = aacSmain;
-
-		this.file = file;
-
 		_ioio = ioio_;
 
 		_running = true;
@@ -187,7 +124,7 @@ public class PotScanner extends Thread
 		_analogInput = new AnalogInput[_inPin.length];
 
 		_digitalOutput = new DigitalOutput[_outPin.length];
-		
+
 		int _lpfCounter = 0;
 
 		try
@@ -213,7 +150,7 @@ public class PotScanner extends Thread
 						_analogInput[j] = _ioio.openAnalogInput(_inPin[j]);
 						_analogInput[j].setBuffer(100);
 					}
-//					_analogInput[j].readBuffered();
+					//					_analogInput[j].readBuffered();
 					_lpf[i][j] = new LowPassFilter(_analogInput[j].readSync(),i, _lpfCounter);
 					_lpfCounter++;
 
@@ -302,11 +239,9 @@ public class PotScanner extends Thread
 
 			int smoothVal = _lpf[_rowCount][i].filterInput(analogValue, _rowCount);	
 
-			Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " + OUTPUT_DEBUG[_rowCount] + " value is: " + analogValue + " smooth value is: " + smoothVal);
-
+			Log.i(DEBUG_TAG, "Input pin: " + INPUT_DEBUG[i] + " of output: " 
+			+ OUTPUT_DEBUG[_rowCount] + " value is: " + analogValue + " smooth value is: " + smoothVal);
 			_inputHandler[_rowCount][i].setValue(smoothVal);
-
-
 		}
 		_digitalOutput[_rowCount].write(false);
 
