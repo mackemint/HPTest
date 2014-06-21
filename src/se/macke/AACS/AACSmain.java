@@ -213,16 +213,17 @@ public class AACSmain extends IOIOActivity
 	 * 
 	 * @param b
 	 */
-	private void setKeyboardLayout(final boolean b) 
+	private void setPadLayout(final boolean b) 
 	{
 
-		runOnUiThread(new Runnable() {
+		runOnUiThread(new Runnable() 
+		{
 			@Override
-			public void run() {
+			public void run() 
+			{
 
 				int whiteKeyColor = 0xFFFFFFFF;
 				int blackKeyColor = 0xFF808080;
-//				int normalColor = 0xFF000000;
 
 				//Setting the keyboard
 				if (b)	
@@ -287,9 +288,6 @@ public class AACSmain extends IOIOActivity
 
 		registerSensors();		
 		setupFaders();
-		//		setKeyboardLayout(true);
-		
-
 	}
 	/**
 	 * Sensor register method
@@ -297,7 +295,7 @@ public class AACSmain extends IOIOActivity
 	private void registerSensors()
 	{
 		
-		sensorListener = new MySensorEventListener();
+		sensorListener = new ZSensorEventListener();
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	}
@@ -371,12 +369,12 @@ public class AACSmain extends IOIOActivity
 		if (note == 91) //Keyboard layout of pads
 		{
 		
-			setKeyboardLayout(true);
+			setPadLayout(true);
 			Log.i(DEBUG_TAG,"Set note mode");
 		}
 		else if (note == 90)
 		{
-			setKeyboardLayout(false);
+			setPadLayout(false);
 			Log.i(DEBUG_TAG,"Disabled note mode");		
 		}
 		//Only note mode for pads
@@ -429,6 +427,35 @@ public class AACSmain extends IOIOActivity
 		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
 		}
+	}
+
+	/**
+	 * Adds a Pitch Bend message to the output queue
+	 * 
+	 * @param dataByte1 The first data byte
+	 * @param dataByte2 The second data byte
+	 */
+	public void addPBToQueue(int dataByte1, int dataByte2) 
+	{
+		ShortMessage msg = new ShortMessage();
+
+		int command = ShortMessage.PITCH_BEND;
+		
+		int ccMIDICh = _params.getMIDIChannel();
+
+		try 
+		{
+			msg.setMessage(command, ccMIDICh, dataByte1, dataByte2);
+			out_queue.add(msg);
+		} 
+
+		catch (Exception e) 
+
+		{
+			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
+		}
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**

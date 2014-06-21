@@ -86,8 +86,6 @@ public class LowPassFilter
 	public int filterInput(float input, int row) 
 	{
 
-		Log.i(DEBUG_TAG,"Filtering input: " + input);
-		
 		input = getRightPolarity(input, row);
 		
 		_fVal = input * (1.f - coef_) + _fVal * coef_;
@@ -95,8 +93,6 @@ public class LowPassFilter
 		int thisInt = adConversion(_fVal);
 		
 		_intVal = (int) (thisInt * (1.f - coef_) + _intVal * coef_);
-
-		Log.i(DEBUG_TAG,"LPF" + _lpfCounter + " input: " + input + " _fVal: " + _fVal + " _intVal: " + _intVal);
 
 		return assertVal(_intVal);
 	}

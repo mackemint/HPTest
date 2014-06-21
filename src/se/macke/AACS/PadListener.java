@@ -26,8 +26,10 @@ public class PadListener implements OnTouchListener
 	private static final String DEBUG_TAG = "PadListener";
 
 	private final int INIT_COLOR = 0xFF000000;
-	
+
 	private SensorEventListener _sensorEventListener;
+
+	private XYEvents _xyEvents;
 
 	/**
 	 * Pad numbers are contained as tags in the layout
@@ -43,6 +45,8 @@ public class PadListener implements OnTouchListener
 	 */
 	private boolean _noteMode = false;
 
+	private int _yCC;
+
 
 	/**
 	 * Sets up a new PadListener
@@ -57,8 +61,10 @@ public class PadListener implements OnTouchListener
 		_main = main;
 
 		_button = b;
-		
+
 		_sensorEventListener = _eventListener;
+
+		_xyEvents = new XYEvents();
 
 	}
 
@@ -68,7 +74,7 @@ public class PadListener implements OnTouchListener
 		Button thisButton = (Button) v;
 
 		int padNumber = Integer.valueOf(String.valueOf(v.getTag()));
-		
+
 		try
 		{
 			switch(event.getAction())
@@ -76,29 +82,34 @@ public class PadListener implements OnTouchListener
 			//Firstly only simple button presses and releases 
 			case MotionEvent.ACTION_DOWN:
 
-				//				System.out.println("Pressed button: " + _padNumber);
+				_xyEvents.setInitial(event);
 
 				if (!_noteMode)
 					releaseColumnMembers(thisButton);		
 
-				int velocity = ((MySensorEventListener) _sensorEventListener).getVelocity();
-				_main.addNoteToQueue(padNumber, velocity);
+				playNote(padNumber);
 
 				break;
 
 			case MotionEvent.ACTION_UP:
 
-				//				System.out.println("Released button: " + _padNumber);
+				_xyEvents.setLast(event);
 
-				_main.addNoteToQueue(padNumber, 0);
+				if(_xyEvents.getMoved())
+					resetModulation();
+
+				_xyEvents.setMoved(false);
+				
+				releaseNote(padNumber);
 
 				break;
 
 				//More sophisticated actions
 			case MotionEvent.ACTION_MOVE:
-
-				//TODO implement motion events from piano project
-				break;
+				//Only do slide events in note mode.
+				if (_noteMode)
+					handleSlide(event);
+				break;			
 			}
 		}
 		catch(Exception e)
@@ -106,6 +117,107 @@ public class PadListener implements OnTouchListener
 			System.out.println(e);
 		}
 		return false;
+	}
+
+	/**
+	 * Handles slide events
+	 * @param event
+	 */
+	private void handleSlide(MotionEvent event) 
+	{
+		handleX(event);
+		handleY(event);
+	}
+
+	private void handleY(MotionEvent event) 
+	{
+		int data2;
+
+		boolean yOK = _xyEvents.getYThreshold(event)[0];
+
+		boolean lastY = _xyEvents.getLastY(event);
+
+
+		if(yOK && lastY)
+		{
+			_xyEvents.setMoved(true);
+
+			int yMod = _xyEvents.eventActions(event)[1];	
+
+			data2 = yMod; //For bigger resolutions: (xMod >> 7) & 0x7f
+			yModulation(data2);
+
+		}
+	}
+
+	private void handleX(MotionEvent event) 
+	{
+		int data1;
+		int data2;
+
+		/**
+		 * The threshold value to reach before pitch bending/y-modulating
+		 */
+		boolean xOK = _xyEvents.getXThreshold(event)[0];
+
+		/**
+		 * These are a check to avoid flooding 
+		 * with messages to the output queue
+		 */
+		boolean lastX = _xyEvents.getLastX(event);
+
+
+		if (xOK && lastX)
+		{
+			_xyEvents.setMoved(true);
+			
+			int xMod = _xyEvents.eventActions(event)[0];
+			System.out.println("int value: " + xMod);
+
+			data1 = xMod & 0x7f;
+			data2 = (xMod >> 7) & 0x7f; 
+			xModulation(data1, data2);
+
+		}
+	}
+
+	private void releaseNote(int padNumber) 
+	{
+		_main.addNoteToQueue(padNumber, 0);
+	}
+
+	private void resetColumn(Button b, int col) 
+	{
+		//Resets all buttons in the same column
+		for (int i = 0; i < _button.length; i++)
+		{
+			if(_button[i][col] != b)
+				_button[i][col].getBackground().setColorFilter(null);
+		}
+
+		//Gives the button a nice green tint
+		b.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
+		Log.i(DEBUG_TAG, "Finished resetting column " + col);
+	}
+
+	/**
+	 * @return the  note mode
+	 */
+	public boolean getNoteMode() {
+		return _noteMode;
+	}
+
+	/**
+	 * @param _noteMode the _noteMode to set
+	 */
+	public void setNoteMode(boolean _noteMode) {
+		this._noteMode = _noteMode;
+	}
+
+
+	private void playNote(int padNumber) {
+		int velocity = ((ZSensorEventListener) _sensorEventListener).getVelocity();
+		_main.addNoteToQueue(padNumber, velocity);
 	}
 
 	/**
@@ -140,13 +252,8 @@ public class PadListener implements OnTouchListener
 		//If it's a scene launch button
 		if (col == _button.length)
 		{
-			System.out.println("Pressed a scene button!");
-
 			for (int i = 0 ; i <= _button.length; i++)
 			{
-
-				System.out.println("Scene reset of col " + i);
-
 				resetColumn(_button[row][i],i);
 			}
 
@@ -156,35 +263,49 @@ public class PadListener implements OnTouchListener
 
 	}
 
-	private void resetColumn(Button b, int col) 
+	/**
+	 * Resets the pitch bend wheel after let go.
+	 *  
+	 */
+	private void resetModulation()
 	{
-		//Resets all buttons in the same column
-		for (int i = 0; i < _button.length; i++)
-		{
-			if(_button[i][col] != b)
-				_button[i][col].getBackground().setColorFilter(null);
-		}
+		int pitchBendZero = 8192;
+		int dataByte1 = pitchBendZero & 0x7f;
+		int dataByte2 = ((pitchBendZero >> 7) & 0x7f); //8
+		_main.addPBToQueue(dataByte1, dataByte2); //dataByte1 needs to be LSB and dataByte2 MSB ....
+		//		Log.i(DEBUG_TAG,"reset pitch bend" + dataByte2);
 
-		//Gives the button a nice green tint
-		b.getBackground().setColorFilter(new LightingColorFilter(INIT_COLOR,ACTIVE_COLOR));
-		Log.i(DEBUG_TAG, "Finished resetting column " + col);
 	}
 
 	/**
-	 * @return the  note mode
+	 * Used by motionTracker method when the finger moves over the screen
+	 * on the x-axis.
+	 * 
+	 * Uses two variables that represents data byte 1 & 2 in the ShortMessage:
+	 * @param d1		the MSB or CC#
+	 * @param d2		the LSB (for aftertouch or pitchbend) or control value MSB 
+	 * 
 	 */
-	public boolean getNoteMode() {
-		return _noteMode;
+	protected void xModulation(int d1, int d2)
+	{
+		_main.addPBToQueue(d1, d2); 
 	}
 
 	/**
-	 * @param _noteMode the _noteMode to set
+	 * Used by motionTracker method when the finger moves over the screen on the
+	 * y-axis
+	 * 
+	 * @param d1		the MSB or CC#
+	 * @param d2		the LSB (for aftertouch or pitchbend etc) or control value MSB
+	 * 
 	 */
-	public void setNoteMode(boolean _noteMode) {
-		this._noteMode = _noteMode;
+
+
+	protected void yModulation(int d2)
+	{
+		_main.addCcToQueue(_yCC, d2);
+
 	}
-
-
 
 
 }
