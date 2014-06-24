@@ -1,5 +1,6 @@
 package se.macke.AACS;
 
+
 import android.graphics.LightingColorFilter;
 import android.hardware.SensorEventListener;
 import android.util.Log;
@@ -29,7 +30,7 @@ public class PadListener implements OnTouchListener
 
 	private SensorEventListener _sensorEventListener;
 
-	private XYEvents _xyEvents;
+	private SlideEventHandler _yEventHandler, _xEventHandler;
 
 	/**
 	 * Pad numbers are contained as tags in the layout
@@ -47,7 +48,6 @@ public class PadListener implements OnTouchListener
 
 	private int _yCC;
 
-
 	/**
 	 * Sets up a new PadListener
 	 * Has knowledge of all the buttons on the screen as well
@@ -56,7 +56,7 @@ public class PadListener implements OnTouchListener
 	 * @param main
 	 * @param b
 	 */
-	public PadListener(AACSmain main, Button[][] b, SensorEventListener _eventListener) 
+	public PadListener(AACSmain main, Button[][] b, SensorEventListener _eventListener, SlideEventHandler xHandler, SlideEventHandler yHandler) 
 	{
 		_main = main;
 
@@ -64,7 +64,8 @@ public class PadListener implements OnTouchListener
 
 		_sensorEventListener = _eventListener;
 
-		_xyEvents = new XYEvents();
+		_xEventHandler = xHandler;
+		_yEventHandler = yHandler;
 
 	}
 
@@ -82,7 +83,7 @@ public class PadListener implements OnTouchListener
 			//Firstly only simple button presses and releases 
 			case MotionEvent.ACTION_DOWN:
 
-				_xyEvents.setInitial(event);
+				initializeSlideEvents(event);
 
 				if (!_noteMode)
 					releaseColumnMembers(thisButton);		
@@ -91,24 +92,21 @@ public class PadListener implements OnTouchListener
 
 				break;
 
+				
 			case MotionEvent.ACTION_UP:
 
-				_xyEvents.setLast(event);
-
-				if(_xyEvents.getMoved())
-					resetModulation();
-
-				_xyEvents.setMoved(false);
-				
 				releaseNote(padNumber);
+
+				endSlide();
+				resetPitchbend();
 
 				break;
 
 				//More sophisticated actions
 			case MotionEvent.ACTION_MOVE:
 				//Only do slide events in note mode.
-				if (_noteMode)
-					handleSlide(event);
+				//				if (_noteMode)
+				handleSlide(event);
 				break;			
 			}
 		}
@@ -129,57 +127,42 @@ public class PadListener implements OnTouchListener
 		handleY(event);
 	}
 
-	private void handleY(MotionEvent event) 
+	private void endSlide() 
 	{
-		int data2;
-
-		boolean yOK = _xyEvents.getYThreshold(event)[0];
-
-		boolean lastY = _xyEvents.getLastY(event);
-
-
-		if(yOK && lastY)
-		{
-			_xyEvents.setMoved(true);
-
-			int yMod = _xyEvents.eventActions(event)[1];	
-
-			data2 = yMod; //For bigger resolutions: (xMod >> 7) & 0x7f
-			yModulation(data2);
-
-		}
+		_xEventHandler.reset();
+		_yEventHandler.reset();
 	}
+
+	private void initializeSlideEvents(MotionEvent event) 
+	{
+		_yEventHandler.setInitial(event.getY());
+		_xEventHandler.setInitial(event.getX());
+	}
+
+
 
 	private void handleX(MotionEvent event) 
 	{
-		int data1;
-		int data2;
-
-		/**
-		 * The threshold value to reach before pitch bending/y-modulating
-		 */
-		boolean xOK = _xyEvents.getXThreshold(event)[0];
-
-		/**
-		 * These are a check to avoid flooding 
-		 * with messages to the output queue
-		 */
-		boolean lastX = _xyEvents.getLastX(event);
-
-
-		if (xOK && lastX)
+		int xMod = _xEventHandler.getModulationValue(event.getX());
+		System.out.println("PitchBend set to: " + xMod);
+		
+		if(xMod != -1)
 		{
-			_xyEvents.setMoved(true);
-			
-			int xMod = _xyEvents.eventActions(event)[0];
-			System.out.println("int value: " + xMod);
-
-			data1 = xMod & 0x7f;
-			data2 = (xMod >> 7) & 0x7f; 
+			int data1 = xMod & 0x7f;
+			int data2 = (xMod >> 7) & 0x7f; 
 			xModulation(data1, data2);
-
 		}
 	}
+
+	private void handleY(MotionEvent event) 
+	{
+		int data = _yEventHandler.getModulationValue(event.getY());
+		if(data != -1)
+			yModulation(data);
+
+	}
+
+
 
 	private void releaseNote(int padNumber) 
 	{
@@ -267,7 +250,7 @@ public class PadListener implements OnTouchListener
 	 * Resets the pitch bend wheel after let go.
 	 *  
 	 */
-	private void resetModulation()
+	private void resetPitchbend()
 	{
 		int pitchBendZero = 8192;
 		int dataByte1 = pitchBendZero & 0x7f;

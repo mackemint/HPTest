@@ -113,16 +113,15 @@ public class ZSensorEventListener implements SensorEventListener
 	{
 
 		int max = 127;
-		
-		double highest;
+
 		
 		float ratio = 1.6f;
 
 		float threshold = (float) (max/ratio);
 
-		highest = (float1)*ratio;
+		double formatted = (float1)*ratio;
 
-		int sevenBits = (int) Math.round(highest);
+		int sevenBits = (int) Math.round(formatted);
 
 		if (sevenBits > threshold)
 			sevenBits /= ratio;

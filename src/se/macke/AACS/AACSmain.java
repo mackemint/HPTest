@@ -3,14 +3,11 @@ package se.macke.AACS;
 
 import ioio.javax.sound.midi.MidiMessage;
 import ioio.javax.sound.midi.ShortMessage;
-//import ioio.lib.api.CapSense;
+
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutput.Spec;
 import ioio.lib.api.DigitalOutput.Spec.Mode;
-//import ioio.lib.api.DigitalInput.*;
-
-
 import ioio.lib.api.Uart;
 import ioio.lib.api.Uart.Parity;
 import ioio.lib.api.Uart.StopBits;
@@ -22,6 +19,7 @@ import ioio.lib.util.android.IOIOActivity;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+
 import java.util.concurrent.ArrayBlockingQueue;
 
 import android.os.Bundle;
@@ -66,8 +64,6 @@ public class AACSmain extends IOIOActivity
 	 */
 	private Button[][] _performancePad;
 	
-
-
 	/**
 	 * Int for column switching
 	 */
@@ -102,13 +98,13 @@ public class AACSmain extends IOIOActivity
 	private Sensor accelerometer;
 	private SensorEventListener sensorListener;
 
-	final static  String PROJECT_TAG = "AACS5.02";
-	
+	private SlideEventHandler _yEventHandler,_xEventHandler;
 
+	final static  String PROJECT_TAG = "AACS5.7";
 
 	private static final int FADER_ROWS = 3;
 
-	private static final int FADER_COLUMNS = 6; //TODO used to be 7, workaround for fader problem
+	private static final int FADER_COLUMNS = 6; 
 
 
 
@@ -174,7 +170,7 @@ public class AACSmain extends IOIOActivity
 
 		
 		
-		_padListener = new PadListener(AACSmain.this, _performancePad, sensorListener);
+		_padListener = new PadListener(AACSmain.this, _performancePad, sensorListener, _xEventHandler, _yEventHandler);
 
 		/**
 		 * Setting up TouchListeners for pads
@@ -210,7 +206,7 @@ public class AACSmain extends IOIOActivity
 
 	/**
 	 * Creates a keyboard layout for the pad surface
-	 * 
+	 * TODO Move this to GUI class
 	 * @param b
 	 */
 	private void setPadLayout(final boolean b) 
@@ -285,6 +281,9 @@ public class AACSmain extends IOIOActivity
 		// Starting up, the system bar fades out
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
+
+		_xEventHandler = new SlideEventHandler(16383, 8192, 30,false, 40);
+		_yEventHandler = new SlideEventHandler(127, 0, 20, true, 1);
 
 		registerSensors();		
 		setupFaders();
@@ -453,9 +452,7 @@ public class AACSmain extends IOIOActivity
 
 		{
 			Log.e(DEBUG_TAG,"InvalidMidiDataException caught");
-		}
-		// TODO Auto-generated method stub
-		
+		}		
 	}
 
 	/**
@@ -496,7 +493,7 @@ public class AACSmain extends IOIOActivity
 		/**
 		 * Class for reading input messages
 		 */
-//		private MidiIn _midiIn;	TODO
+//		private MidiIn _midiIn;//	TODO
 
 
 
@@ -517,19 +514,19 @@ public class AACSmain extends IOIOActivity
 
 			Log.i(DEBUG_TAG,"setup");
 
-			led_ = ioio_.openDigitalOutput(0, false);
+			led_ = ioio_.openDigitalOutput(0, true);
 
 			_potScanner = new PotScanner(this.ioio_, _inputHandler, file, AACSmain.this);
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
-//			_midiIn = new MidiIn(this.ioio_, AACSmain.this);	TODO
+//			_midiIn = new MidiIn(this.ioio_, AACSmain.this, led_);	//TODO
 
 			_potScanner.start();
 			
 			_buttonScanner.start();
 			
-//			_midiIn.start();	TODO
+//			_midiIn.start();	//TODO
 
 			//Initializing the output
 			_midiOut = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN,DigitalInput.Spec.Mode.PULL_DOWN),
@@ -554,7 +551,7 @@ public class AACSmain extends IOIOActivity
 
 				_potScanner.abort();
 				_buttonScanner.abort();
-//				_midiIn.abort();	TODO
+//				_midiIn.abort();	//TODO
 			}
 			catch (NullPointerException e)
 			{
@@ -580,9 +577,7 @@ public class AACSmain extends IOIOActivity
 				try 
 				{
 					_outputStream.write(out_queue.poll().getMessage());
-					led_.write(false);
-					Thread.sleep(1);
-					led_.write(true);
+					blinkLed();
 				} 
 				catch (IOException e) 
 				{
@@ -590,11 +585,18 @@ public class AACSmain extends IOIOActivity
 				} 
 				catch (InterruptedException e) 
 				{
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}	
 			}
 
+		}
+
+		public void blinkLed() throws ConnectionLostException,
+				InterruptedException {
+			led_.write(false);
+			Thread.sleep(1);
+			led_.write(true);
 		}
 	}
 
@@ -608,11 +610,14 @@ public class AACSmain extends IOIOActivity
 	{
 		return new IOIO();
 	}
-
+/**
+ * TODO move to GUI Class
+ * @param noteNumber
+ */
 	public void setColorOfPad(int noteNumber) 
 	{
-		int[] coord = new int[2];
-		coord = _params.findPosition(noteNumber);
+		int[] coord = _params.findPosition(noteNumber);
+		
 		Button b = _performancePad[coord[0]][coord[1]];
 		
 		for (int i = 0; i < _performancePad.length; i++)

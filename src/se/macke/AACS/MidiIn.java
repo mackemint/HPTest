@@ -1,5 +1,7 @@
 package se.macke.AACS;
 
+import ioio.javax.sound.midi.ShortMessage;
+import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -8,6 +10,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+
+
+
 
 
 
@@ -37,7 +43,7 @@ public class MidiIn extends Thread
 
 	private final String DEBUG_TAG = "MIDI IN: ";
 
-	public MidiIn(IOIO ioio_, AACSmain m_) throws ConnectionLostException
+	public MidiIn(IOIO ioio_, AACSmain m_, DigitalOutput led_) throws ConnectionLostException, InterruptedException
 	{
 
 		Log.i(DEBUG_TAG  ,"Constructor");
@@ -45,8 +51,13 @@ public class MidiIn extends Thread
 		_ioio = ioio_;
 		_main = m_;
 
+		
 		midi_in_ = _ioio.openUart(INPUT_PIN, IOIO.INVALID_PIN, BAUD_RATE, 
 				Uart.Parity.NONE, Uart.StopBits.ONE);
+
+		led_.write(false);
+		Thread.sleep(1);
+		led_.write(true);
 
 		inputStream = midi_in_.getInputStream();
 		
@@ -93,13 +104,13 @@ public class MidiIn extends Thread
 				}
 
 				int byteZero = recievedData[0]  & 0xFF;
-				int noteNumber = (int) recievedData[1] & 0xFF;	//Sets note number to int
+				int noteNumber = (int) (recievedData[1] & 0xFF);	//Sets note number to int
 				int byte2 = recievedData[2] & 0xFF;
 				
 				Log.i(DEBUG_TAG, "Databyte0: " + byteZero + " data1: " + 
 						recievedData[1] + " data2: " + byte2);
 
-				if (recievedData[0] == 0x90) //If it was Note On, set color of pad
+				if (recievedData[0] == (ShortMessage.NOTE_ON & 0xFF)) //If it was Note On, set color of pad
 					_main.setColorOfPad(noteNumber);
 				
 			} 
