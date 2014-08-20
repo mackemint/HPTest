@@ -114,7 +114,6 @@ public class HardwareButton
 
 	/**
 	 * Takes a parameter for returning the correct number
-
 	 * 
 	 * @param modifier s for solo, m for mute, sh for shift
 	 *   

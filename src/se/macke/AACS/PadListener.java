@@ -22,6 +22,8 @@ import android.widget.Button;
  */
 public class PadListener implements OnTouchListener
 {
+	private static final String PERFORM = "perform";
+
 	private static final int ACTIVE_COLOR = 0xFF00FF00;
 
 	private static final String DEBUG_TAG = "PadListener";
@@ -48,6 +50,8 @@ public class PadListener implements OnTouchListener
 
 	private int _yCC;
 
+	private Params _params;
+
 	/**
 	 * Sets up a new PadListener
 	 * Has knowledge of all the buttons on the screen as well
@@ -56,10 +60,12 @@ public class PadListener implements OnTouchListener
 	 * @param main
 	 * @param b
 	 */
-	public PadListener(AACSmain main, Button[][] b, SensorEventListener _eventListener, SlideEventHandler xHandler, SlideEventHandler yHandler) 
+	public PadListener(AACSmain main, Params params, Button[][] b, SensorEventListener _eventListener, SlideEventHandler xHandler, SlideEventHandler yHandler) 
 	{
 		_main = main;
 
+		_params = params;
+		
 		_button = b;
 
 		_sensorEventListener = _eventListener;
@@ -73,6 +79,8 @@ public class PadListener implements OnTouchListener
 	public boolean onTouch(View v, MotionEvent event) 
 	{
 		Button thisButton = (Button) v;
+		
+		_noteMode = !_params.getMode().equalsIgnoreCase(PERFORM);
 
 		int padNumber = Integer.valueOf(String.valueOf(v.getTag()));
 
@@ -183,19 +191,21 @@ public class PadListener implements OnTouchListener
 		Log.i(DEBUG_TAG, "Finished resetting column " + col);
 	}
 
-	/**
-	 * @return the  note mode
-	 */
-	public boolean getNoteMode() {
-		return _noteMode;
-	}
+//	/**
+//	 * @return the  note mode
+//	 */
+//	public boolean getNoteMode() 
+//	{
+//		return _noteMode;
+//	}
 
-	/**
-	 * @param _noteMode the _noteMode to set
-	 */
-	public void setNoteMode(boolean _noteMode) {
-		this._noteMode = _noteMode;
-	}
+//	/**
+//	 * @param _noteMode the _noteMode to set
+//	 */
+//	public void setNoteMode(boolean _noteMode) 
+//	{
+//		this._noteMode = _noteMode;
+//	}
 
 
 	private void playNote(int padNumber) {
@@ -219,13 +229,13 @@ public class PadListener implements OnTouchListener
 		// for all pads do localization
 		while(thisButton != _button[row][col])
 		{
-			System.out.println("<<<<col is:" + col);
+//			System.out.println("<<<<col is:" + col);
 			col++;
 
 			if(col > _button.length)
 			{
 
-				System.out.println("<<<<row is:" + row);
+//				System.out.println("<<<<row is:" + row);
 
 				col = 0;
 				row++;

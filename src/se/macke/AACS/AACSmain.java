@@ -3,7 +3,6 @@ package se.macke.AACS;
 
 import ioio.javax.sound.midi.MidiMessage;
 import ioio.javax.sound.midi.ShortMessage;
-
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.DigitalOutput.Spec;
@@ -19,11 +18,13 @@ import ioio.lib.util.android.IOIOActivity;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.util.concurrent.ArrayBlockingQueue;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -37,8 +38,10 @@ import android.hardware.SensorManager;
 
 public class AACSmain extends IOIOActivity 
 {
+
+
 	Params _params = new Params();
-	
+
 	File file;
 	/**
 	 * A proxy class for MIDI I/O
@@ -63,7 +66,7 @@ public class AACSmain extends IOIOActivity
 	 * Column number 7 consists of scene launch buttons
 	 */
 	private Button[][] _performancePad;
-	
+
 	/**
 	 * Int for column switching
 	 */
@@ -106,9 +109,6 @@ public class AACSmain extends IOIOActivity
 
 	private static final int FADER_COLUMNS = 6; 
 
-
-
-	
 	private void setupFaders()
 	{
 
@@ -117,7 +117,7 @@ public class AACSmain extends IOIOActivity
 		_inputHandler = new InputHandler[FADER_ROWS][FADER_COLUMNS];
 
 		_performancePad = new Button[BUTTON_COLUMNS][BUTTON_ROWS];
-		
+
 		// Setting up on screen buttons
 
 		_performancePad[0][0] = (Button) findViewById(R.id.r0c0);
@@ -168,9 +168,9 @@ public class AACSmain extends IOIOActivity
 		_performancePad[5][5] = (Button) findViewById(R.id.r5c5);
 		_performancePad[5][6] = (Button) findViewById(R.id.r5c6);
 
-		
-		
-		_padListener = new PadListener(AACSmain.this, _performancePad, sensorListener, _xEventHandler, _yEventHandler);
+
+
+		_padListener = new PadListener(AACSmain.this, _params, _performancePad, sensorListener, _xEventHandler, _yEventHandler);
 
 		/**
 		 * Setting up TouchListeners for pads
@@ -224,7 +224,7 @@ public class AACSmain extends IOIOActivity
 				//Setting the keyboard
 				if (b)	
 				{
-					_padListener.setNoteMode(true);
+					_params.setMode(_params.MODE_NOTE);
 
 					//Button rows are backwards
 					for (int i = 0; i < BUTTON_COLUMNS; i++)
@@ -253,7 +253,7 @@ public class AACSmain extends IOIOActivity
 				//Resetting the keyboard
 				else if (!b)
 				{
-					_padListener.setNoteMode(false);
+					_params.setMode(null);
 					for (int i = 0; i < BUTTON_COLUMNS; i++)
 					{
 						for (int j = 0; j< BUTTON_ROWS; j++)
@@ -276,29 +276,73 @@ public class AACSmain extends IOIOActivity
 
 		// Sets orientation to both sides Landscape
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		setContentView(R.layout.activity_hpmain);
+		setContentView(R.layout.activity_performancecontroller);
 
 		// Starting up, the system bar fades out
 		View rootView = getWindow().getDecorView();
 		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
 
-		_xEventHandler = new SlideEventHandler(16383, 8192, 30,false, 40);
+		_xEventHandler = new SlideEventHandler(16383, 8192, 30, false, 40);
 		_yEventHandler = new SlideEventHandler(127, 0, 20, true, 1);
 
 		registerSensors();		
 		setupFaders();
 	}
+
+
+	/**
+	 * 
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+
+		switch(item.getItemId())
+		{
+
+		case R.id.dj_controller:
+			setContentView(R.layout.activity_djcontroller);
+			_params.setMode(_params.MODE_DJ);
+			setupFaders();
+			return true;
+
+		case R.id.performance_controller:
+			setContentView(R.layout.activity_performancecontroller);
+			_params.setMode(_params.MODE_PERFORM);
+			setupFaders();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+
+	}
+
+	/**
+	 * Creates a menu for settings of transposition and CC values
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.settings_menu, menu);
+
+		return true;
+
+	}
+
 	/**
 	 * Sensor register method
 	 */
 	private void registerSensors()
 	{
-		
+
 		sensorListener = new ZSensorEventListener();
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	}
-	
+
 	@Override
 	protected void onPause()
 	{
@@ -367,7 +411,7 @@ public class AACSmain extends IOIOActivity
 
 		if (note == 91) //Keyboard layout of pads
 		{
-		
+
 			setPadLayout(true);
 			Log.i(DEBUG_TAG,"Set note mode");
 		}
@@ -377,7 +421,7 @@ public class AACSmain extends IOIOActivity
 			Log.i(DEBUG_TAG,"Disabled note mode");		
 		}
 		//Only note mode for pads
-		if(_padListener.getNoteMode())
+		if(_params.getNoteMode())
 		{
 			if (note > 23 && note < 66)
 				midiCh -= 1;
@@ -411,7 +455,7 @@ public class AACSmain extends IOIOActivity
 	public void addCcToQueue(int cc, int val)
 	{
 		ShortMessage msg = new ShortMessage();
-		
+
 		int ccMIDICh = _params.getMIDIChannel();
 
 		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
@@ -439,7 +483,7 @@ public class AACSmain extends IOIOActivity
 		ShortMessage msg = new ShortMessage();
 
 		int command = ShortMessage.PITCH_BEND;
-		
+
 		int ccMIDICh = _params.getMIDIChannel();
 
 		try 
@@ -465,7 +509,7 @@ public class AACSmain extends IOIOActivity
 		private static final int MIDI_OUTPUT_PIN = 7;
 		private static final int MIDI_INPUT_PIN = 6;
 
-//		private final ioio.lib.api.DigitalInput.Spec INPUT = new ioio.lib.api.DigitalInput.Spec(MIDI_INPUT_PIN);
+		//		private final ioio.lib.api.DigitalInput.Spec INPUT = new ioio.lib.api.DigitalInput.Spec(MIDI_INPUT_PIN);
 
 		/** The on-board LED. */
 		private DigitalOutput led_;
@@ -473,7 +517,7 @@ public class AACSmain extends IOIOActivity
 		/**
 		 * The output for MIDI messages
 		 */
-		private Uart _midiOut;
+		private Uart _uart;
 
 		/**
 		 * The stream used for sending the MIDI bytes
@@ -489,11 +533,11 @@ public class AACSmain extends IOIOActivity
 		 * A class for handling fader and knob input
 		 */
 		private PotScanner _potScanner;
-		
+
 		/**
 		 * Class for reading input messages
 		 */
-//		private MidiIn _midiIn;//	TODO
+		private MidiIn _midiIn;
 
 
 
@@ -520,24 +564,28 @@ public class AACSmain extends IOIOActivity
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
 
-//			_midiIn = new MidiIn(this.ioio_, AACSmain.this, led_);	//TODO
+			_uart = ioio_.openUart(MIDI_INPUT_PIN, MIDI_OUTPUT_PIN,BAUD,Parity.NONE,StopBits.ONE);
 
-			_potScanner.start();
-			
-			_buttonScanner.start();
-			
-//			_midiIn.start();	//TODO
+			_midiIn = new MidiIn(_uart,AACSmain.this);	
+
 
 			//Initializing the output
-			_midiOut = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN,DigitalInput.Spec.Mode.PULL_DOWN),
-					new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL),BAUD,Parity.NONE,StopBits.ONE);
+			//			_uart = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN, DigitalInput.Spec.Mode.PULL_DOWN),
+			//					new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL),BAUD,Parity.NONE,StopBits.ONE);
 
-			_outputStream = _midiOut.getOutputStream();
+						_potScanner.start();
+
+						_buttonScanner.start();
+
+
+			_midiIn.start();	
+
+			_outputStream = _uart.getOutputStream();
 
 
 			//Increases the priority of the current thread
 			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-			
+
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
 
@@ -551,7 +599,7 @@ public class AACSmain extends IOIOActivity
 
 				_potScanner.abort();
 				_buttonScanner.abort();
-//				_midiIn.abort();	//TODO
+				_midiIn.abort();	
 			}
 			catch (NullPointerException e)
 			{
@@ -593,7 +641,7 @@ public class AACSmain extends IOIOActivity
 		}
 
 		public void blinkLed() throws ConnectionLostException,
-				InterruptedException {
+		InterruptedException {
 			led_.write(false);
 			Thread.sleep(1);
 			led_.write(true);
@@ -610,25 +658,42 @@ public class AACSmain extends IOIOActivity
 	{
 		return new IOIO();
 	}
-/**
- * TODO move to GUI Class
- * @param noteNumber
- */
-	public void setColorOfPad(int noteNumber) 
+	/**
+	 * TODO move to GUI Class
+	 * @param noteNumber
+	 */
+	public void setColorOfPad(final int noteNumber, final int velocityColor) 
 	{
-		int[] coord = _params.findPosition(noteNumber);
-		
-		Button b = _performancePad[coord[0]][coord[1]];
-		
-		for (int i = 0; i < _performancePad.length; i++)
+		runOnUiThread(new Runnable() 
 		{
-			if(_performancePad[i][coord[1]] != b)
-				_performancePad[i][coord[1]].getBackground().setColorFilter(null);
-		}
+			@Override
+			public void run() 
+			{
+				int noteNumberDec = Integer.parseInt( String.valueOf(noteNumber));
+				Log.i(DEBUG_TAG, String.format("trying to find note: %d",noteNumberDec) );
 
-		//Gives the button a nice green tint
-		_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,0xFF00FF00));
-		
+				int[] coord = _params.findPosition(noteNumberDec);
+				if(coord[0] == -1 || coord[1] == -1)
+				{
+					System.out.println("Illegal position for note");
+					return;
+				}
+
+				Log.i(DEBUG_TAG, String.format("found note: %d on coordinate:%d:%d", noteNumberDec,coord[0],coord[1]));
+
+				Button b = _performancePad[coord[0]][coord[1]];
+
+				for (int i = 0; i < _performancePad.length; i++)
+				{
+					if(_performancePad[i][coord[1]] != b)
+						_performancePad[i][coord[1]].getBackground().setColorFilter(null);
+				}
+
+				//Gives the button a nice green tint
+				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,0xFF00FF00));
+			}
+		});
 	}
+
 
 }

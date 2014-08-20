@@ -4,7 +4,20 @@
     <string name="init">0</string>
     <string name="scene">►</string>
     <string name="stop_scene"> ◼︎</string>
-    <string name="stop_clip">[ _ ]</string>
-    <string name="app_name">AACS_0.02_analogFilter</string>
+    <string name="stop_clip">[|_|]</string>
+    <string name="app_name">AndroidControlSurface</string>
+    <string name="cue">CUE</string>
+    <string name="pause">||</string>
+    <string name="play_pause">> |  |</string>
+    
+    <string name="nudge_forward">-&gt;</string>
+    <string name="nudge_backward">&lt;-</string>
+    <string name="sync">SYNC</string>
+    <string name="key_lock">KEY</string>
 
+    
+    
+    <string name="dj">DJ</string>
+    <string name="perform">Perform</string>
+    
 </resources>

@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item 
+        android:id="@+id/dj_controller"
+        android:title="@string/dj" 
+        >
+        
+    </item>
+    
+    
+    <item
+        android:id="@+id/performance_controller"
+        android:title="@string/perform" 
+        >
+    </item>
+
+
+
+</menu>

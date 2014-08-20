@@ -1,21 +1,14 @@
 package se.macke.AACS;
 
-import ioio.javax.sound.midi.ShortMessage;
-import ioio.lib.api.DigitalOutput;
-import ioio.lib.api.IOIO;
+
+
+//import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-
-
-
-
-
-
 
 import android.util.Log;
 
@@ -29,42 +22,33 @@ public class MidiIn extends Thread
 	 */
 	private Uart midi_in_;
 
-	private IOIO _ioio;
-
 	private AACSmain _main;
 
-	//	private MIDIOut _out;
-
-	private final int INPUT_PIN = 6;
-
-	private final int BAUD_RATE = 31250;
 
 	private boolean _running;
 
-	private final String DEBUG_TAG = "MIDI IN: ";
+	private final String DEBUG_TAG = "MIDI_IN: ";
 
-	public MidiIn(IOIO ioio_, AACSmain m_, DigitalOutput led_) throws ConnectionLostException, InterruptedException
+	private IncomingMIDIHandler _incomingMIDIHandler;
+
+	private MIDIBeatClock _midiBeatClock;
+
+	public MidiIn(Uart MIDI, AACSmain m_) throws ConnectionLostException, InterruptedException
 	{
 
 		Log.i(DEBUG_TAG  ,"Constructor");
 
-		_ioio = ioio_;
 		_main = m_;
 
-		
-		midi_in_ = _ioio.openUart(INPUT_PIN, IOIO.INVALID_PIN, BAUD_RATE, 
-				Uart.Parity.NONE, Uart.StopBits.ONE);
-
-		led_.write(false);
-		Thread.sleep(1);
-		led_.write(true);
+		midi_in_ = MIDI;
 
 		inputStream = midi_in_.getInputStream();
 		
-		_br = new BufferedReader(new InputStreamReader(inputStream));
+		_incomingMIDIHandler = new IncomingMIDIHandler(MidiIn.this);
+
+		_midiBeatClock = new MIDIBeatClock(m_); 	//TODO implement beat clock
 
 		_running  = true;
-
 
 		Log.i(DEBUG_TAG  ,"Constructor finished");
 	}
@@ -77,44 +61,25 @@ public class MidiIn extends Thread
 	{
 		while(_running)
 		{
-			Log.i(DEBUG_TAG  ,"Looping MIDI in");
 			try
 			{
+				int midiByte;
+
+				midiByte = inputStream.read();
+
+				Log.i(DEBUG_TAG, String.format("reading: %02x", midiByte));
+
+				_incomingMIDIHandler.add(midiByte);
+
 				Thread.sleep(2);
 
 			} 
-			catch (InterruptedException e)
+			catch (IOException e) 
 			{
+				
 				e.printStackTrace();
 			}
-
-			/**
-			 * An array of bytes read from the input
-			 */
-			byte[] recievedData = new byte[3];
-
-			try
-			{
-				Log.i(DEBUG_TAG  ,"Attempting read.. ");
-
-				for (int i = 0 ; i < recievedData.length; i++)
-				{
-					recievedData[i] = _br.readLine().getBytes()[0];
-					Log.i(DEBUG_TAG, String.format("readLine: %02x", recievedData[i]));
-				}
-
-				int byteZero = recievedData[0]  & 0xFF;
-				int noteNumber = (int) (recievedData[1] & 0xFF);	//Sets note number to int
-				int byte2 = recievedData[2] & 0xFF;
-				
-				Log.i(DEBUG_TAG, "Databyte0: " + byteZero + " data1: " + 
-						recievedData[1] + " data2: " + byte2);
-
-				if (recievedData[0] == (ShortMessage.NOTE_ON & 0xFF)) //If it was Note On, set color of pad
-					_main.setColorOfPad(noteNumber);
-				
-			} 
-			catch (IOException e)
+			catch (InterruptedException e)
 			{
 				e.printStackTrace();
 			}
@@ -126,5 +91,19 @@ public class MidiIn extends Thread
 		_running = false;
 		interrupt();
 	}
+
+	/**
+	 * A call to the main activity to set the color of a pad
+	 * 
+	 * @param noteNumber
+	 * @param velocityColor
+	 */
+	public void setPadColor(int noteNumber, int velocityColor)
+	{	
+		Log.i(DEBUG_TAG, String.format("note: %d triggered with color value: %d", noteNumber, velocityColor));
+		_main.setColorOfPad(noteNumber, velocityColor);
+	}
+
+
 
 }
