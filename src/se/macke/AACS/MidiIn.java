@@ -2,8 +2,6 @@ package se.macke.AACS;
 
 
 
-//import ioio.lib.api.IOIO;
-import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 
@@ -48,6 +46,8 @@ public class MidiIn extends Thread
 		_incomingMIDIHandler = new IncomingMIDIHandler(_midiBeatClock, MidiIn.this);
 
 		_running  = true;
+
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 		Log.i(DEBUG_TAG  ,"Constructor finished");
 	}

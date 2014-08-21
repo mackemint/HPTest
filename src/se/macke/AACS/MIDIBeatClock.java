@@ -32,16 +32,15 @@ import android.util.Log;
 public class MIDIBeatClock extends Thread
 {
 
+	private static final String DEBUG_TAG = "MIDI Beat clock";
 	/**
 	 * 
 	 */
-	private static final int GATE_OUTPUT_PIN = 47;
-	//	private static final float COEFFICIENT = 0.11f;
+	private static final int GATE_OUTPUT_PIN = 10;
 	private long _timeBetweenTicks;
 	private double _lastTimeBetweenTicks;
 
 	private long _lastTick;
-	private AACSmain _main;
 	private boolean _running;
 
 	private IOIO _ioio;
@@ -56,14 +55,17 @@ public class MIDIBeatClock extends Thread
 	{
 		_timeBetweenTicks = 0;
 		_ioio = ioio_;
-		
+
+		Log.i(DEBUG_TAG ,"Midi beat clock constructor");
+
+
 		try {
 			_pulseOutput = _ioio.openDigitalOutput(GATE_OUTPUT_PIN);
 		} catch (ConnectionLostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//		_main = mainActivity;
+		_running = false ;
 	}
 
 	public void tick() 
@@ -86,9 +88,9 @@ public class MIDIBeatClock extends Thread
 
 			//			System.out.println("thisTick is: " + thisTick);
 			//
-			//			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
+			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
 			//
-			//			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
+			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
 
 			System.out.println("Tempo is: " + getTempoInBPM());
 			//			_main.writeToTextView((getTempoInBPM()));
@@ -102,22 +104,30 @@ public class MIDIBeatClock extends Thread
 	@Override
 	public void run()
 	{
-		while(_running)
-			setGatePulsWidth(getTimeForSixteenthNote()-1);
+		while(true)
+		{
 
-		//While false, do nothing
-		while(!_running);
+			if(_running)
+			{
+				long bananer = getTimeForSixteenthNote();
+				setGatePulsWidth(bananer);
+				Log.i(DEBUG_TAG ,"running gate sequence with time: " + bananer);
+			}
+		}
 
 	}
 
-	private void setGatePulsWidth(double pulsWidthInMillis) 
+	private void setGatePulsWidth(long pulsWidthInMillis) 
 	{
+		
 		try 
 		{
+			long openGate = (long) (pulsWidthInMillis -(pulsWidthInMillis * 0.1));
+			long closedGate = (long) (pulsWidthInMillis * 0.1);
 			_pulseOutput.write(true);
-			Thread.sleep((long) pulsWidthInMillis);
+			Thread.sleep(openGate);
 			_pulseOutput.write(false);
-			Thread.sleep(1);
+			Thread.sleep(closedGate);
 		} catch (ConnectionLostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -125,15 +135,22 @@ public class MIDIBeatClock extends Thread
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+
 	}
 
-	public double getTimeForSixteenthNote()
+	private long getTimeForSixteenthNote()
 	{
-		return (6*(_lastTimeBetweenTicks));
+		Log.i(DEBUG_TAG ,"ticks gate time is: " + 6*(_lastTimeBetweenTicks));
+		if (_lastTimeBetweenTicks < 10)
+			return 120;
+		else if (_lastTimeBetweenTicks > 300)
+			return 300;
+
+		return (long) (6*(_lastTimeBetweenTicks));
 	}
 
-	public double getTempoInBPM()
+	private double getTempoInBPM()
 	{
 
 
@@ -143,12 +160,15 @@ public class MIDIBeatClock extends Thread
 
 	}
 
-	public void setRunningStatus(boolean b) {
+	public void setRunningStatus(boolean b) 
+	{
+
+		Log.i(DEBUG_TAG ,"running status set to " + b);
 		_running = b;
 	}
 	public void abort() 
 	{
 		_running = false;
-		interrupt();
+				interrupt();
 	}
 }

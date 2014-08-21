@@ -570,19 +570,21 @@ public class AACSmain extends IOIOActivity
 
 			_uart = ioio_.openUart(MIDI_INPUT_PIN, MIDI_OUTPUT_PIN,BAUD,Parity.NONE,StopBits.ONE);
 
+//			Thread _midiBeatThread = new Thread(_midiBeatClock, "Beat Clock Thread");
+
 			_midiIn = new MidiIn(_midiBeatClock,_uart,AACSmain.this);	
+			
 
+//						_potScanner.start();
 
-			//Initializing the output
-			//			_uart = ioio_.openUart(new DigitalInput.Spec(MIDI_INPUT_PIN, DigitalInput.Spec.Mode.PULL_DOWN),
-			//					new Spec(MIDI_OUTPUT_PIN,Mode.NORMAL),BAUD,Parity.NONE,StopBits.ONE);
-
-						_potScanner.start();
-
-						_buttonScanner.start();
+//						_buttonScanner.start();
 
 
 			_midiIn.start();	
+
+
+			_midiBeatClock.start();
+
 
 			_outputStream = _uart.getOutputStream();
 
@@ -695,11 +697,18 @@ public class AACSmain extends IOIOActivity
 						_performancePad[i][coord[1]].getBackground().setColorFilter(null);
 				}
 				int velocityFactor = velocityColor*2;
-				int[] hexSequence = {0xFF,0x00,velocityFactor,0x00};
-				int hexString = Integer.parseInt(hexSequence.toString());
+				int[] hexSequence = {0x00,velocityFactor,0x00};
+                StringBuilder sb = new StringBuilder(hexSequence.length);
+                for (int i = 0; i < hexSequence.length; i++)
+                {
+                sb.append(hexSequence[i]);  
+                }
+//                int hexString = Integer.parseInt(sb.toString());
+                int hexInteger = Integer.parseInt(sb.toString(), 16);
+				
 				
 				//Gives the button a nice green tint
-				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexString));
+				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexInteger));
 			}
 		});
 	}

@@ -28,7 +28,7 @@ public class IncomingMIDIHandler
 
 	public IncomingMIDIHandler(MIDIBeatClock midiBeatClock, MidiIn midiIn)
 	{
-		_midiBeatClock = midiBeatClock;	//TODO edit Beat Clock class for handling tempo events
+		_midiBeatClock = midiBeatClock;	
 		_midiVoiceMessage = new MIDIVoiceMessage(midiIn);
 		
 		_midiIn = midiIn;
