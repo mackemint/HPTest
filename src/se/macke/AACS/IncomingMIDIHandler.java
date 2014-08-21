@@ -2,13 +2,14 @@ package se.macke.AACS;
 
 import android.util.Log;
 import ioio.javax.sound.midi.ShortMessage;
+import ioio.lib.api.IOIO;
 
 public class IncomingMIDIHandler 
 {
 
 	private static final String DEBUG_TAG = "Handler";
 
-//	MIDIBeatClock _midiBeatClock;
+	MIDIBeatClock _midiBeatClock;
 
 	MIDIVoiceMessage _midiVoiceMessage;
 
@@ -25,9 +26,9 @@ public class IncomingMIDIHandler
 
 	private MidiIn _midiIn;
 
-	public IncomingMIDIHandler(MidiIn midiIn)
+	public IncomingMIDIHandler(MIDIBeatClock midiBeatClock, MidiIn midiIn)
 	{
-//		_midiBeatClock = new MIDIBeatClock(null);	//TODO edit Beat Clock class for handling tempo events
+		_midiBeatClock = midiBeatClock;	//TODO edit Beat Clock class for handling tempo events
 		_midiVoiceMessage = new MIDIVoiceMessage(midiIn);
 		
 		_midiIn = midiIn;
@@ -52,8 +53,15 @@ public class IncomingMIDIHandler
 
 			break;
 
+		case ShortMessage.START:
+			_midiBeatClock.setRunningStatus(true);
+			return;
+			
+		case ShortMessage.STOP:
+			_midiBeatClock.setRunningStatus(false);
+			return;
 		case ShortMessage.TIMING_CLOCK:
-//			_midiBeatClock.tick();	//TODO
+			_midiBeatClock.tick();	
 			return;
 		case ShortMessage.ACTIVE_SENSING:
 			return;

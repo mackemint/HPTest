@@ -1,5 +1,10 @@
 package se.macke.AACS;
 
+import ioio.lib.api.DigitalOutput;
+import ioio.lib.api.IOIO;
+import ioio.lib.api.exception.ConnectionLostException;
+
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -23,26 +28,42 @@ import android.util.Log;
  * 
  * An output message of the time of a sixteenth note and the BPM will be displayed in the console.
  */
-@TargetApi(Build.VERSION_CODES.GINGERBREAD)
-public class MIDIBeatClock 
+
+public class MIDIBeatClock extends Thread
 {
 
-	private static final float COEFFICIENT = 0.11f;
+	/**
+	 * 
+	 */
+	private static final int GATE_OUTPUT_PIN = 47;
+	//	private static final float COEFFICIENT = 0.11f;
 	private long _timeBetweenTicks;
 	private double _lastTimeBetweenTicks;
 
 	private long _lastTick;
 	private AACSmain _main;
+	private boolean _running;
 
-	
+	private IOIO _ioio;
+	private DigitalOutput _pulseOutput;
+
+
 	/**
 	 * Will take an analog pulse class as instance variable for handling pulse events
-	 * @param mainActivity
+	 * @param ioio_ 
 	 */
-	public MIDIBeatClock(AACSmain mainActivity)
+	public MIDIBeatClock(IOIO ioio_)
 	{
 		_timeBetweenTicks = 0;
-		_main = mainActivity;
+		_ioio = ioio_;
+		
+		try {
+			_pulseOutput = _ioio.openDigitalOutput(GATE_OUTPUT_PIN);
+		} catch (ConnectionLostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//		_main = mainActivity;
 	}
 
 	public void tick() 
@@ -63,20 +84,48 @@ public class MIDIBeatClock
 			//			
 			//			_lastTimeBetweenTicks =  (firstFiltering* (1.f- COEFFICIENT) + _timeBetweenTicks*COEFFICIENT);
 
-//			System.out.println("thisTick is: " + thisTick);
-//
-//			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
-//
-//			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
+			//			System.out.println("thisTick is: " + thisTick);
+			//
+			//			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
+			//
+			//			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
 
 			System.out.println("Tempo is: " + getTempoInBPM());
-//			_main.writeToTextView((getTempoInBPM()));
+			//			_main.writeToTextView((getTempoInBPM()));
 
 		}
 		else
 			_timeBetweenTicks = System.currentTimeMillis();
 
 
+	}
+	@Override
+	public void run()
+	{
+		while(_running)
+			setGatePulsWidth(getTimeForSixteenthNote()-1);
+
+		//While false, do nothing
+		while(!_running);
+
+	}
+
+	private void setGatePulsWidth(double pulsWidthInMillis) 
+	{
+		try 
+		{
+			_pulseOutput.write(true);
+			Thread.sleep((long) pulsWidthInMillis);
+			_pulseOutput.write(false);
+			Thread.sleep(1);
+		} catch (ConnectionLostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public double getTimeForSixteenthNote()
@@ -94,4 +143,12 @@ public class MIDIBeatClock
 
 	}
 
+	public void setRunningStatus(boolean b) {
+		_running = b;
+	}
+	public void abort() 
+	{
+		_running = false;
+		interrupt();
+	}
 }

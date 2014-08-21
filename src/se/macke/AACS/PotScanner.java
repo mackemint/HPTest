@@ -1,12 +1,9 @@
 
 package se.macke.AACS;
 
-import java.io.File;
 import ioio.lib.api.AnalogInput;
-
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
-
 import ioio.lib.api.exception.ConnectionLostException;
 import android.util.Log;
 
@@ -102,13 +99,12 @@ public class PotScanner extends Thread
 	 * Creates a new scanner with knowledge of the IOIO and the inputhandler form main activity
 	 * 
 	 * @param ioio_
-	 * @param file 
 	 * @param aacSmain 
 	 * @param _inputHandler2
 	 * @throws InterruptedException 
 	 * @throws ConnectionLostException 
 	 */
-	public PotScanner(IOIO ioio_, InputHandler[][] inputHandler, File file, AACSmain aacSmain) throws InterruptedException, ConnectionLostException
+	public PotScanner(IOIO ioio_, InputHandler[][] inputHandler, AACSmain aacSmain) throws InterruptedException, ConnectionLostException
 	{
 
 		Log.i(DEBUG_TAG, "Constructor");

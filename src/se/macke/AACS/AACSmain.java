@@ -539,6 +539,8 @@ public class AACSmain extends IOIOActivity
 		 */
 		private MidiIn _midiIn;
 
+		private MIDIBeatClock _midiBeatClock;
+
 
 
 		/**
@@ -560,13 +562,15 @@ public class AACSmain extends IOIOActivity
 
 			led_ = ioio_.openDigitalOutput(0, true);
 
-			_potScanner = new PotScanner(this.ioio_, _inputHandler, file, AACSmain.this);
+			_potScanner = new PotScanner(this.ioio_, _inputHandler, AACSmain.this);
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
+			
+			_midiBeatClock = new MIDIBeatClock(this.ioio_);
 
 			_uart = ioio_.openUart(MIDI_INPUT_PIN, MIDI_OUTPUT_PIN,BAUD,Parity.NONE,StopBits.ONE);
 
-			_midiIn = new MidiIn(_uart,AACSmain.this);	
+			_midiIn = new MidiIn(_midiBeatClock,_uart,AACSmain.this);	
 
 
 			//Initializing the output
@@ -599,7 +603,8 @@ public class AACSmain extends IOIOActivity
 
 				_potScanner.abort();
 				_buttonScanner.abort();
-				_midiIn.abort();	
+				_midiIn.abort();
+				_midiBeatClock.abort();
 			}
 			catch (NullPointerException e)
 			{
@@ -641,7 +646,8 @@ public class AACSmain extends IOIOActivity
 		}
 
 		public void blinkLed() throws ConnectionLostException,
-		InterruptedException {
+		InterruptedException 
+		{
 			led_.write(false);
 			Thread.sleep(1);
 			led_.write(true);
@@ -688,9 +694,12 @@ public class AACSmain extends IOIOActivity
 					if(_performancePad[i][coord[1]] != b)
 						_performancePad[i][coord[1]].getBackground().setColorFilter(null);
 				}
-
+				int velocityFactor = velocityColor*2;
+				int[] hexSequence = {0xFF,0x00,velocityFactor,0x00};
+				int hexString = Integer.parseInt(hexSequence.toString());
+				
 				//Gives the button a nice green tint
-				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,0xFF00FF00));
+				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexString));
 			}
 		});
 	}

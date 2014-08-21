@@ -3,6 +3,7 @@ package se.macke.AACS;
 
 
 //import ioio.lib.api.IOIO;
+import ioio.lib.api.IOIO;
 import ioio.lib.api.Uart;
 import ioio.lib.api.exception.ConnectionLostException;
 
@@ -31,9 +32,9 @@ public class MidiIn extends Thread
 
 	private IncomingMIDIHandler _incomingMIDIHandler;
 
-	private MIDIBeatClock _midiBeatClock;
+//	private MIDIBeatClock _midiBeatClock;
 
-	public MidiIn(Uart MIDI, AACSmain m_) throws ConnectionLostException, InterruptedException
+	public MidiIn(MIDIBeatClock _midiBeatClock, Uart MIDI, AACSmain m_) throws ConnectionLostException, InterruptedException
 	{
 
 		Log.i(DEBUG_TAG  ,"Constructor");
@@ -44,9 +45,7 @@ public class MidiIn extends Thread
 
 		inputStream = midi_in_.getInputStream();
 		
-		_incomingMIDIHandler = new IncomingMIDIHandler(MidiIn.this);
-
-		_midiBeatClock = new MIDIBeatClock(m_); 	//TODO implement beat clock
+		_incomingMIDIHandler = new IncomingMIDIHandler(_midiBeatClock, MidiIn.this);
 
 		_running  = true;
 
