@@ -2,17 +2,10 @@
 <classpath>
 	<classpathentry excluding="javax/" kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="/Users/macke/android-sdks/platforms/android-17/android.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/macke/android-sdks/docs/reference"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="nonaccessible" pattern="com/android/internal/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/IOIOLib"/>
+	<classpathentry kind="src" path="/IOIOLibAndroid"/>
+	<classpathentry kind="src" path="/IOIOLibAccessory"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
