@@ -4,14 +4,9 @@ import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 
-import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 
-import android.annotation.TargetApi;
-import android.net.NetworkInfo.DetailedState;
-import android.os.Build;
 import android.util.Log;
 
 
@@ -45,15 +40,14 @@ public class MIDIBeatClock extends Thread
 
 	private IOIO _ioio;
 	private DigitalOutput _pulseOutput;
-
-
 	/**
 	 * Will take an analog pulse class as instance variable for handling pulse events
 	 * @param ioio_ 
 	 */
 	public MIDIBeatClock(IOIO ioio_)
 	{
-		_timeBetweenTicks = 0;
+		_timeBetweenTicks = 20;
+		_lastTimeBetweenTicks = 20;
 		_ioio = ioio_;
 
 		Log.i(DEBUG_TAG ,"Midi beat clock constructor");
@@ -68,6 +62,8 @@ public class MIDIBeatClock extends Thread
 		_running = false ;
 	}
 
+	
+	
 	public void tick() 
 	{
 		if (_timeBetweenTicks != 0)
@@ -109,9 +105,9 @@ public class MIDIBeatClock extends Thread
 
 			if(_running)
 			{
-				long bananer = getTimeForSixteenthNote();
-				setGatePulsWidth(bananer);
-				Log.i(DEBUG_TAG ,"running gate sequence with time: " + bananer);
+				long sixteentNoteInMillis = getTimeForSixteenthNote();
+				setGatePulsWidth(sixteentNoteInMillis);
+				Log.i(DEBUG_TAG ,"running gate sequence with time: " + sixteentNoteInMillis);
 			}
 		}
 

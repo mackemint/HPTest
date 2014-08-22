@@ -54,6 +54,7 @@ public class IncomingMIDIHandler
 			break;
 
 		case ShortMessage.START:
+		case ShortMessage.SONG_POSITION_POINTER:
 			_midiBeatClock.setRunningStatus(true);
 			return;
 			
