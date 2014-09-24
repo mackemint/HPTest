@@ -84,11 +84,11 @@ public class MIDIBeatClock extends Thread
 
 			//			System.out.println("thisTick is: " + thisTick);
 			//
-			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
-			//
-			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
-
-			System.out.println("Tempo is: " + getTempoInBPM());
+//			System.out.println("_timeBetweenTicks is: " + _timeBetweenTicks);
+//			//
+//			System.out.println("_lastTimeBetweenTicks is: " + _lastTimeBetweenTicks);
+//
+//			System.out.println("Tempo is: " + getTempoInBPM());
 			//			_main.writeToTextView((getTempoInBPM()));
 
 		}
@@ -107,7 +107,7 @@ public class MIDIBeatClock extends Thread
 			{
 				long sixteentNoteInMillis = getTimeForSixteenthNote();
 				setGatePulsWidth(sixteentNoteInMillis);
-				Log.i(DEBUG_TAG ,"running gate sequence with time: " + sixteentNoteInMillis);
+//				Log.i(DEBUG_TAG ,"running gate sequence with time: " + sixteentNoteInMillis);
 			}
 		}
 
@@ -137,7 +137,7 @@ public class MIDIBeatClock extends Thread
 
 	private long getTimeForSixteenthNote()
 	{
-		Log.i(DEBUG_TAG ,"ticks gate time is: " + 6*(_lastTimeBetweenTicks));
+//		Log.i(DEBUG_TAG ,"ticks gate time is: " + 6*(_lastTimeBetweenTicks));
 		if (_lastTimeBetweenTicks < 10)
 			return 120;
 		else if (_lastTimeBetweenTicks > 300)
@@ -159,7 +159,7 @@ public class MIDIBeatClock extends Thread
 	public void setRunningStatus(boolean b) 
 	{
 
-		Log.i(DEBUG_TAG ,"running status set to " + b);
+//		Log.i(DEBUG_TAG ,"running status set to " + b);
 		_running = b;
 	}
 	public void abort() 

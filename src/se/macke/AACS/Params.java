@@ -152,6 +152,9 @@ public class Params
 
 
 		int[] position = {-1,-1};
+		
+		if(isHardwareButton(elem))
+			return position;
 
 		/**
 		 * TODO
@@ -201,6 +204,16 @@ public class Params
 			}
 		}
 		return position;
+	}
+
+	/**
+	 * 
+	 * @param elem
+	 * @return true for buttons outside the GUI scope
+	 */
+	private boolean isHardwareButton(int elem) {
+		System.out.printf("Note element pressed is: %d",elem);
+		return (elem>65 && elem<24);
 	}
 
 	public int getHardwareButton(int row, int col)

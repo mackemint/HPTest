@@ -70,7 +70,7 @@ public class IncomingMIDIHandler
 
 		if(_bufferVoiceMessage)
 		{
-//			Log.i("Handler: ", "adding voiceMessage" + midiByte);
+			Log.i("Handler: ", "adding voiceMessage" + midiByte);
 
 			_midiVoiceMessage.addMIDIByte(midiByte);
 

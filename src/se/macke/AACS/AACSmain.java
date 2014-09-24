@@ -681,9 +681,10 @@ public class AACSmain extends IOIOActivity
 				Log.i(DEBUG_TAG, String.format("trying to find note: %d",noteNumberDec) );
 
 				int[] coord = _params.findPosition(noteNumberDec);
+				
 				if(coord[0] == -1 || coord[1] == -1)
 				{
-					System.out.println("Illegal position for note");
+					System.out.println("Illegal position for note" + noteNumberDec);
 					return;
 				}
 
@@ -696,16 +697,24 @@ public class AACSmain extends IOIOActivity
 					if(_performancePad[i][coord[1]] != b)
 						_performancePad[i][coord[1]].getBackground().setColorFilter(null);
 				}
-				int velocityFactor = velocityColor*2;
-				int[] hexSequence = {0x00,velocityFactor,0x00};
-                StringBuilder sb = new StringBuilder(hexSequence.length);
-                for (int i = 0; i < hexSequence.length; i++)
-                {
-                sb.append(hexSequence[i]);  
-                }
+//				int velocityFactor = velocityColor*7;
+				int velocityFactor = 255;
+
+//				int[] hexSequence = {0xFF,0x00,velocityFactor,0x00};
+//                StringBuilder sb = new StringBuilder(hexSequence.length);
+//                for (int i = 0; i < hexSequence.length; i++)
+//                {
+//                	sb.append(hexSequence[i]);  
+//                }
+                
+                
+                
 //                int hexString = Integer.parseInt(sb.toString());
-                int hexInteger = Integer.parseInt(sb.toString(), 16);
-				
+//                int hexInteger = Integer.parseInt(sb.toString(), 16);
+                int hexInteger = (0xFF << 24) | (velocityFactor << 8);
+                
+                Log.i(DEBUG_TAG, String.format("note: %d set pad velocity: %d, integer is: %d", noteNumberDec, velocityFactor,hexInteger));
+			
 				
 				//Gives the button a nice green tint
 				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexInteger));
