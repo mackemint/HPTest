@@ -3,6 +3,11 @@ package se.macke.AACS;
 public class Params 
 {
 	/**
+	 * Debug flag for beta testing
+	 */
+	private static final boolean BETA_FLAG = true;
+
+	/**
 	 * The Params file is a place to store all note values and other parameters
 	 * for the controller.
 	 * 
@@ -285,6 +290,11 @@ public class Params
 	public Boolean getNoteMode()
 	{
 		return _mode.equalsIgnoreCase(MODE_NOTE);
+	}
+
+	public boolean getBetaFlag() {
+		
+		return BETA_FLAG;
 	}
 
 }

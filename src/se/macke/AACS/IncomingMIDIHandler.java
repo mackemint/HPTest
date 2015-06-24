@@ -18,20 +18,20 @@ public class IncomingMIDIHandler
 	 */
 	private final int MIDI_CHANNEL = 15;
 
-	private boolean _bufferVoiceMessage = false;
+	private boolean _runningStatus = false;
 
-	private final int BYTE_LIMIT = 3;
-
-	private int _byteCount = 0;
-
-	private MidiIn _midiIn;
+//	private final int BYTE_LIMIT = 3;
+//
+//	private int _byteCount = 0;
+//
+//	private MidiIn _midiIn;
 
 	public IncomingMIDIHandler(MIDIBeatClock midiBeatClock, MidiIn midiIn)
 	{
 		_midiBeatClock = midiBeatClock;	
 		_midiVoiceMessage = new MIDIVoiceMessage(midiIn);
 		
-		_midiIn = midiIn;
+//		_midiIn = midiIn;
 
 	}
 
@@ -41,16 +41,26 @@ public class IncomingMIDIHandler
 		Log.i(">>Handler: ", "adding message " + midiByte);
 //		Log.i(DEBUG_TAG, String.format("reading: %02x", midiByte));
 
+		/**
+		MIDI running status ....
+		If a voicemessage is recieved, we exit running status.
+		If this message happens to be a a Note On, running status is  set to true.
+		*/
+		
+		if(midiByte > 127 && midiByte != 0x9F && midiByte < 0xF8)
+			setRunningStatus(false);
+		
+		
 		switch (midiByte)
 		{
 		case ShortMessage.NOTE_ON + MIDI_CHANNEL:
 
-//			Log.i("Handler: ","New Note message, engaging buffermode");
-			_bufferVoiceMessage = true;
+			Log.i("Handler: ","New Note message, engaging Running Status");
+			_runningStatus = true;
 
 			break;
 		case ShortMessage.CONTROL_CHANGE + MIDI_CHANNEL:
-
+			
 			break;
 
 		case ShortMessage.START:
@@ -68,29 +78,25 @@ public class IncomingMIDIHandler
 			return;
 		}
 
-		if(_bufferVoiceMessage)
+		if(_runningStatus)
 		{
 			Log.i("Handler: ", "adding voiceMessage" + midiByte);
 
 			_midiVoiceMessage.addMIDIByte(midiByte);
 
-			countAndCheckLimit();	
 		}
 	}
+	
+	
+	
 
-
-	private void countAndCheckLimit() 
+	private void setRunningStatus(boolean b) 
 	{
-		_byteCount++;
-		if (_byteCount == BYTE_LIMIT)
-			resetBuffer();
+		Log.i("adding ","Clearing Running Status!");
+		
+		_midiVoiceMessage.setRunningStatus(_runningStatus = b);
 	}
 
-	private void resetBuffer() 
-	{
-		_bufferVoiceMessage = false;
-		_byteCount = 0;
-	}
 
 }
 

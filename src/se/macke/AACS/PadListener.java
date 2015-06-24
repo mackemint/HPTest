@@ -93,7 +93,7 @@ public class PadListener implements OnTouchListener
 
 				initializeSlideEvents(event);
 
-				if (!_noteMode)
+				if (!_noteMode && !_params.getBetaFlag())
 					releaseColumnMembers(thisButton);		
 
 				playNote(padNumber);
@@ -113,8 +113,8 @@ public class PadListener implements OnTouchListener
 				//More sophisticated actions
 			case MotionEvent.ACTION_MOVE:
 				//Only do slide events in note mode.
-				//				if (_noteMode)
-				handleSlide(event);
+				if (_noteMode)
+					handleSlide(event);
 				break;			
 			}
 		}
@@ -191,21 +191,21 @@ public class PadListener implements OnTouchListener
 		Log.i(DEBUG_TAG, "Finished resetting column " + col);
 	}
 
-//	/**
-//	 * @return the  note mode
-//	 */
-//	public boolean getNoteMode() 
-//	{
-//		return _noteMode;
-//	}
+	/**
+	 * @return the  note mode
+	 */
+	public boolean getNoteMode() 
+	{
+		return _noteMode;
+	}
 
-//	/**
-//	 * @param _noteMode the _noteMode to set
-//	 */
-//	public void setNoteMode(boolean _noteMode) 
-//	{
-//		this._noteMode = _noteMode;
-//	}
+	/**
+	 * @param _noteMode the _noteMode to set
+	 */
+	public void setNoteMode(boolean _noteMode) 
+	{
+		this._noteMode = _noteMode;
+	}
 
 
 	private void playNote(int padNumber) {

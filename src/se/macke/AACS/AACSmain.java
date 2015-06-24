@@ -42,7 +42,7 @@ public class AACSmain extends IOIOActivity
 
 	Params _params = new Params();
 
-	File file;
+//	File file;
 	/**
 	 * A proxy class for MIDI I/O
 	 */
@@ -407,7 +407,7 @@ public class AACSmain extends IOIOActivity
 		ShortMessage msg = new ShortMessage();
 		int midiCh = _params.getMIDIChannel();
 
-		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
+//		Log.i(DEBUG_TAG,"Note is: " + note + " trying to change layout...");
 
 		if (note == 91) //Keyboard layout of pads
 		{
@@ -565,25 +565,25 @@ public class AACSmain extends IOIOActivity
 			_potScanner = new PotScanner(this.ioio_, _inputHandler, AACSmain.this);
 
 			_buttonScanner = new ButtonScanner(this.ioio_, AACSmain.this, led_);
-			
+
 			_midiBeatClock = new MIDIBeatClock(this.ioio_);
 
 			_uart = ioio_.openUart(MIDI_INPUT_PIN, MIDI_OUTPUT_PIN,BAUD,Parity.NONE,StopBits.ONE);
 
-//			Thread _midiBeatThread = new Thread(_midiBeatClock, "Beat Clock Thread");
+			//			Thread _midiBeatThread = new Thread(_midiBeatClock, "Beat Clock Thread");
 
-			_midiIn = new MidiIn(_midiBeatClock,_uart,AACSmain.this);	
-			
-
-//						_potScanner.start();
-
-//						_buttonScanner.start();
+//			_midiIn = new MidiIn(_midiBeatClock,_uart,AACSmain.this);	
 
 
-			_midiIn.start();	
+									_potScanner.start();
+
+									_buttonScanner.start();
 
 
-			_midiBeatClock.start();
+//			_midiIn.start();	
+
+
+//			_midiBeatClock.start();
 
 
 			_outputStream = _uart.getOutputStream();
@@ -672,54 +672,59 @@ public class AACSmain extends IOIOActivity
 	 */
 	public void setColorOfPad(final int noteNumber, final int velocityColor) 
 	{
-		runOnUiThread(new Runnable() 
+		if(_params.getBetaFlag())
 		{
-			@Override
-			public void run() 
+			runOnUiThread(new Runnable() 
 			{
-				int noteNumberDec = Integer.parseInt( String.valueOf(noteNumber));
-				Log.i(DEBUG_TAG, String.format("trying to find note: %d",noteNumberDec) );
-
-				int[] coord = _params.findPosition(noteNumberDec);
-				
-				if(coord[0] == -1 || coord[1] == -1)
+				@Override
+				public void run() 
 				{
-					System.out.println("Illegal position for note" + noteNumberDec);
-					return;
+					int noteNumberDec = Integer.parseInt( String.valueOf(noteNumber));
+					Log.i(DEBUG_TAG, String.format("trying to find note: %d",noteNumberDec) );
+
+					int[] coord = _params.findPosition(noteNumberDec);
+
+					if(coord[0] == -1 || coord[1] == -1)
+					{
+						System.out.println("Illegal position for note" + noteNumberDec);
+						return;
+					}
+
+
+
+					Log.i(DEBUG_TAG, String.format("found note: %d on coordinate:%d:%d", noteNumberDec,coord[0],coord[1]));
+
+					Button b = _performancePad[coord[0]][coord[1]];
+
+					for (int i = 0; i < _performancePad.length; i++)
+					{
+						if(_performancePad[i][coord[1]] != b)
+							_performancePad[i][coord[1]].getBackground().setColorFilter(null);
+					}
+					/**
+					 * When the controller gets a message from Live, the Off message is velocity 32
+					 * Therefore I set the velocity to 0 before multiplying with 2 to get the full 
+					 * 0xFF color of the button.
+					 */
+					int velocityFactor  = velocityColor;
+
+					if (velocityFactor == 32)
+						velocityFactor = 0;
+
+					velocityFactor *= 2;
+
+
+
+					int hexInteger = (0xFF << 24) | (velocityFactor << 8);
+
+					Log.i(DEBUG_TAG, String.format("note: %d set pad velocity: %d, integer is: %d", noteNumberDec, velocityFactor,hexInteger));
+
+
+					//Gives the button a nice green tint
+					_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexInteger));
 				}
-
-				Log.i(DEBUG_TAG, String.format("found note: %d on coordinate:%d:%d", noteNumberDec,coord[0],coord[1]));
-
-				Button b = _performancePad[coord[0]][coord[1]];
-
-				for (int i = 0; i < _performancePad.length; i++)
-				{
-					if(_performancePad[i][coord[1]] != b)
-						_performancePad[i][coord[1]].getBackground().setColorFilter(null);
-				}
-//				int velocityFactor = velocityColor*7;
-				int velocityFactor = 255;
-
-//				int[] hexSequence = {0xFF,0x00,velocityFactor,0x00};
-//                StringBuilder sb = new StringBuilder(hexSequence.length);
-//                for (int i = 0; i < hexSequence.length; i++)
-//                {
-//                	sb.append(hexSequence[i]);  
-//                }
-                
-                
-                
-//                int hexString = Integer.parseInt(sb.toString());
-//                int hexInteger = Integer.parseInt(sb.toString(), 16);
-                int hexInteger = (0xFF << 24) | (velocityFactor << 8);
-                
-                Log.i(DEBUG_TAG, String.format("note: %d set pad velocity: %d, integer is: %d", noteNumberDec, velocityFactor,hexInteger));
-			
-				
-				//Gives the button a nice green tint
-				_performancePad[coord[0]][coord[1]].getBackground().setColorFilter(new LightingColorFilter(0xFF000000,hexInteger));
-			}
-		});
+			});
+		}
 	}
 
 

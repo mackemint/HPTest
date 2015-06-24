@@ -34,10 +34,8 @@ public class MIDIVoiceMessage
 				Log.i(VOICE_MESSAGE, "recieved message" + midiByte);
 
 		if (reachedBufferSizeLimit())
-		{
-			//			Log.i("VoiceMessage ", "size reached, making message");
 			makeMessage();
-		}
+	
 	}
 
 	/**
@@ -60,8 +58,8 @@ public class MIDIVoiceMessage
 		{
 
 			shortMessage = new ShortMessage(_byteList.getFirst(), _byteList.get(1), _byteList.getLast());
-			_byteList.clear();
-
+			_byteList.removeLast();
+			_byteList.removeLast();	//Removing the two last bytes and saving the Status Byte for re-use
 		} 
 		catch (InvalidMidiDataException e) 
 		{
@@ -83,13 +81,19 @@ public class MIDIVoiceMessage
 		case ShortMessage.NOTE_ON:
 
 			_midiIn.setPadColor(shortMessage.getData1(),shortMessage.getData2());
-			System.out.println("Note "+shortMessage.getData1()+ " on channel " + shortMessage.getChannel() + 
+			System.out.println("Note "+shortMessage.getData1() + " on channel " + shortMessage.getChannel() + 
 					" is pressed with velocity " + shortMessage.getData2());
 
 			break;
 
 		}
 
+	}
+
+	public void setRunningStatus(boolean b) 
+	{
+		_byteList.clear();
+		
 	}
 
 }

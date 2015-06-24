@@ -9,8 +9,7 @@ import java.util.LinkedList;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.util.Log;
-import android.widget.TextView;
+import ioio.lib.spi.Log;
 
 
 /**
@@ -36,15 +35,7 @@ public class ZSensorEventListener implements SensorEventListener
 
 	}
 
-	/* 
-	 * @see android.hardware.SensorEventListener#onAccuracyChanged(android.hardware.Sensor, int)
-	 */
-	@Override
-	public void onAccuracyChanged(Sensor arg0, int arg1)
-	{
-		// Edit this method, macke
 
-	}
 
 	/** 
 	 * Overridden sensor method.
@@ -174,5 +165,13 @@ public class ZSensorEventListener implements SensorEventListener
 
 		return Collections.max(slopeValues);
 	}
+
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 }
