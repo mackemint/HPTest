@@ -193,7 +193,7 @@ public class AACSmain extends IOIOActivity
 			for (int j = 0; j < FADER_COLUMNS; j++)
 			{
 				int ccNum = _params.getPotValue(i, j);
-				_destinationProxy[i][j] = new DestinationProxy(i, ccNum, AACSmain.this);
+				_destinationProxy[i][j] = new DestinationProxy(j, ccNum, AACSmain.this);
 
 				_inputHandler[i][j] = new InputHandler(_destinationProxy[i][j]);
 
@@ -449,20 +449,20 @@ public class AACSmain extends IOIOActivity
 	/**
 	 * Adds a CC value to the output queue
 	 * 
-	 * @param cc
-	 * @param val
-	 * @param _ccValue 
+	 * @param channel
+	 * @param ccNum
+	 * @param amount
 	 */
-	public void addCcToQueue(int channel, int val, int cc)
+	public void addCcToQueue(int channel, int ccNum, int amount)
 	{
 		ShortMessage msg = new ShortMessage();
 
 //		int ccMIDICh = _params.getMIDIChannel();
 
-		Log.i(DEBUG_TAG,"Changing CC#: " + cc + " to " + val);
+		Log.i(DEBUG_TAG,"Changing CC#: " + ccNum + " to " + amount);
 		try 
 		{
-			msg.setMessage(ShortMessage.CONTROL_CHANGE, channel, cc, val);
+			msg.setMessage(ShortMessage.CONTROL_CHANGE, channel, ccNum, amount);
 			out_queue.add(msg);
 		} 
 
