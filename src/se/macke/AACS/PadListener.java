@@ -296,7 +296,7 @@ public class PadListener implements OnTouchListener
 
 	protected void yModulation(int d2)
 	{
-		_main.addCcToQueue(_yCC, d2);
+		_main.addCcToQueue(_params.getMIDIChannel(), _yCC, d2);
 
 	}
 

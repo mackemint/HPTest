@@ -33,22 +33,28 @@ public class DestinationProxy
 	 * The value in 7 bit sent to the output queue
 	 */
 	private int _ccValue;
+
+	/**
+	 * MIDI channel for track control
+	 */
+	private int _channel;
 	
 
 		
 
 	/**
 	 * Creates a new destination
-	 * 
+	 * @param ch - MIDI channel for track control
 	 * @param cc - the CC message
 	 * @param main main activity
 	 */
-	public DestinationProxy(int cc, AACSmain main) 
+	public DestinationProxy(int ch, int cc, AACSmain main) 
 	{
 
 		_main = main;
 			
 		_ccNumber = cc;
+		_channel = ch;
 		
 		Log.i(DEBUG_TAG, "CC set to: " +_ccNumber);
 
@@ -66,7 +72,7 @@ public class DestinationProxy
 		Log.i(DEBUG_TAG,"Setting destination value to queue");
 		
 		_ccValue = value;
-		_main.addCcToQueue(_ccNumber, _ccValue);
+		_main.addCcToQueue(_channel,_ccNumber, _ccValue);
 //		System.out.printf("Destination %d was set to: %d/n",_cc, _destinationValue);
 	}
 
