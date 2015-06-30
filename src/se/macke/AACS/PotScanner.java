@@ -202,9 +202,9 @@ public class PotScanner extends Thread
 				Log.i(DEBUG_TAG,"Exited App");
 			}
 
-			//sometimes do something else
-			if(!_running)
-			{}
+//			//sometimes do something else
+//			if(!_running)
+//			{}
 		}
 	}
 

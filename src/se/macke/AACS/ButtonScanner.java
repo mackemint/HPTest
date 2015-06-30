@@ -208,8 +208,8 @@ public class ButtonScanner extends Thread
 				_running = false;			
 				e.printStackTrace();
 			}
-			//While false, do nothing
-			while(!_running);
+//			//While false, do nothing
+//			while(!_running);
 		}	
 
 	}

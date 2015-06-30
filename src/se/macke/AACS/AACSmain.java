@@ -596,13 +596,15 @@ public class AACSmain extends IOIOActivity
 			Log.i(DEBUG_TAG,"setup finished");
 		} 
 
+
 		/**
 		 * Kills the threads
 		 */
 		@Override
 		public void disconnected()
 		{
-			try{
+			try
+			{
 
 				_potScanner.abort();
 				_buttonScanner.abort();
