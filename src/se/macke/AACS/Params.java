@@ -18,7 +18,7 @@ public class Params
 	}
 
 
-	private final int[][] LAUNCH_BUTTON = 
+	private static final int[][] LAUNCH_BUTTON = 
 		{
 			{24,25,26,27,28,29,65},
 			{30,31,32,33,34,35,64},
@@ -76,7 +76,15 @@ public class Params
 	/**
 	 * Faders and knobs
 	 */
-	private final int[][] POT_MATRIX1 = {
+	private final int[][] DEFAULT_MATRIX = 
+	{
+			{60,61,62,63,64,65},
+			{66,67,68,69,70,71},
+			{72,73,74,75,76,77}
+	};
+	
+	private static int[][] POT_MATRIX1 = 
+	{
 			{60,61,62,63,64,65},
 			{66,67,68,69,70,71},
 			{72,73,74,75,76,77}
@@ -88,7 +96,30 @@ public class Params
 
 	private final int MIDI_CHANNEL = 15;
 
+	
+	/**
+	 * Caustic CC values
+	 */
+	private final static int[] BEAT_BOX = {60,66,72};
+	private final static int[] ORGAN	= {61,67,73};
+	private final static int[] PAD		= {62,68,74};
+	private final static int[] PCM		= {63,69,75};
+	private final static int[] BASSLINE	= {64,70,76};
+	private final static int[] SUBSYNTH	= {65,71,77};
+	private final static int[] EIGHTBIT	= {66,72,78};
+	private final static int[] FMSYNTH	= {67,73,79};
+	
+	/**
+	 * Name of instrument
+	 */
+	private final String[] 	INSTRUMENT_NAME = {"BeatBox","PCM","Organ","Pad","Bassline","SubSynth","8-bit","FM-synth"};
+	/**
+	 * CC numbers of instrument
+	 */
+	private final static int[][] 	INSTRUMENT_NUM = {BEAT_BOX,ORGAN,PAD,PCM,BASSLINE,SUBSYNTH,EIGHTBIT,FMSYNTH};
+	
 
+			
 	/**
 	 * Used for performance modes
 	 */
@@ -98,6 +129,9 @@ public class Params
 	public final String MODE_NOTE = "note";
 
 	private String _mode = MODE_PERFORM;
+
+
+	SettingBrowser _settingBrowser = new SettingBrowser();
 
 	/**
 	 * Finds position of item.
@@ -250,6 +284,19 @@ public class Params
 	{
 		return POT_MATRIX1[row][col];
 	}
+	/**
+	 * S�tt till static alla grejer som beh�ver kommas �t ofta!
+	 * @param col
+	 */
+	public void setPotColumnValues( int col)
+	{
+		int counter = _settingBrowser.countUpPosition(col);
+		
+		for (int i = 0; i < POT_MATRIX1.length; i++)
+			POT_MATRIX1[i][col] = INSTRUMENT_NUM[counter][i];
+		
+//TODO		_gui.showToast(col,INSTRUMENT_NAME(counter));
+	}
 
 	public int getMIDIChannel() {
 
@@ -257,22 +304,18 @@ public class Params
 	}
 
 	public int[][] getSoloValues() {
-		// TODO Auto-generated method stub
 		return SOLO_MATRIX;
 	}
 
 	public int[][] getMuteValues() {
-		// TODO Auto-generated method stub
 		return MUTE_MATRIX;
 	}
 
 	public int[][] getShiftValues() {
-		// TODO Auto-generated method stub
 		return SHIFT_MATRIX;
 	}
 
 	public int[][] getNoteValues() {
-		// TODO Auto-generated method stub
 		return BUTTON_MATRIX;
 	}
 	/**

@@ -29,9 +29,6 @@ public class HardwareButton
 	 */
 	private String _modifier;
 
-	private int _pressed;
-
-	
 	/**
 	 * 
 	 * Creates a new HardwareButton object
@@ -44,7 +41,7 @@ public class HardwareButton
 	 */
 	public HardwareButton(int shift, int note, int solo, int mute, String modifier)
 	{
-		_pressed = 2;
+
 		
 		_modifier = modifier;
 		
