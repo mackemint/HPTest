@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.LightingColorFilter;
@@ -36,6 +37,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+@SuppressLint("NewApi")
 public class AACSmain extends IOIOActivity 
 {
 
@@ -280,7 +282,11 @@ public class AACSmain extends IOIOActivity
 
 		// Starting up, the system bar fades out
 		View rootView = getWindow().getDecorView();
-		rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
+		int SDK_INT = android.os.Build.VERSION.SDK_INT;
+
+		
+		if(SDK_INT >= 14) 
+			rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE); 
 
 		_xEventHandler = new SlideEventHandler(16383, 8192, 30, false, 40);
 		_yEventHandler = new SlideEventHandler(127, 0, 20, true, 1);

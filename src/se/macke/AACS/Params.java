@@ -85,9 +85,9 @@ public class Params
 	
 	private static int[][] POT_MATRIX1 = 
 	{
-			{60,61,62,63,64,65},
-			{66,67,68,69,70,71},
-			{72,73,74,75,76,77}
+			{60,60,60,60,60,60},
+			{66,66,66,66,66,66},
+			{72,72,72,72,72,72}
 	};
 
 	private final int[] POT_MATRIX2 = {80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97};
@@ -283,19 +283,6 @@ public class Params
 	public int getPotValue(int row, int col)
 	{
 		return POT_MATRIX1[row][col];
-	}
-	/**
-	 * S�tt till static alla grejer som beh�ver kommas �t ofta!
-	 * @param col
-	 */
-	public void setPotColumnValues( int col)
-	{
-		int counter = _settingBrowser.countUpPosition(col);
-		
-		for (int i = 0; i < POT_MATRIX1.length; i++)
-			POT_MATRIX1[i][col] = INSTRUMENT_NUM[counter][i];
-		
-//TODO		_gui.showToast(col,INSTRUMENT_NAME(counter));
 	}
 
 	public int getMIDIChannel() {

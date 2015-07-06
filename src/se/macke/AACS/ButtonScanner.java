@@ -197,6 +197,7 @@ public class ButtonScanner extends Thread
 			try
 			{
 				scanKeyboard();
+				Thread.sleep(1);
 			} 
 			catch (ConnectionLostException e)
 			{
@@ -209,12 +210,6 @@ public class ButtonScanner extends Thread
 				e.printStackTrace();
 			}
 			
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}	
 
 	}
@@ -317,24 +312,10 @@ public class ButtonScanner extends Thread
 		int noteOff = 0;
 
 		if(keyDown)
-		{
 			_main.addNoteToQueue(number,noteOn);
-			paramEdit(number);
-		}
 		else
 			_main.addNoteToQueue(number,noteOff);
 	}
-
-
-	private void paramEdit(int number) 
-	{
-		
-		_params.setPotColumnValues(number%10);
-	
-	}
-
-
-
 
 	/**
 	 * pre: button is pressed

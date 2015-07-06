@@ -186,9 +186,9 @@ public class PotScanner extends Thread
 				{
 					scanColums();	
 				}
-
+			
+				Thread.sleep(1);
 			} 
-
 
 			catch (InterruptedException e)
 			{
@@ -201,10 +201,6 @@ public class PotScanner extends Thread
 
 				Log.i(DEBUG_TAG,"Exited App");
 			}
-
-//			//sometimes do something else
-//			if(!_running)
-//			{}
 		}
 	}
 
